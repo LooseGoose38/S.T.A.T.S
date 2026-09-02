@@ -8,5 +8,22 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  },
+  "dependencies": {
+    "axios": "^1.20.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.6.0",
+    "mongoose": "^9.9.4",
+    "psn-api": "^2.18.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LooseGoose38/S.T.A.T.S.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/LooseGoose38/S.T.A.T.S/issues"
+  },
+  "homepage": "https://github.com/LooseGoose38/S.T.A.T.S#readme"
 }
