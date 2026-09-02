@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const Game = require('./models/Game');
 
 // Import the Unlock blueprint we just created from the models folder
-const Unlock = require('./models/Unlock');
+const Unlock = require('./models/Achievement');
 
 // Create an asynchronous function so we can tell the code to "wait" for the database to respond
 async function runTest() {

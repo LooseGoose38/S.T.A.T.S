@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const unlockSchema = new mongoose.Schema({
+const achievementSchema = new mongoose.Schema({
     gameId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Game',
@@ -9,8 +9,12 @@ const unlockSchema = new mongoose.Schema({
     gameTitle: {type: String, required: true },
     achievementName: { type: String, required: true },
     description: { type: String, required: true },
-    unlockDate: { type: String, required: true },
     iconUrl: { type: String, required: true },
+
+    isUnlocked: { type: Boolean, default: false },
+
+    unlockDate: { type: Date },
+
     weight: {
         type: { type: String, required: true },
         value: { type: String, required: true },
@@ -18,4 +22,4 @@ const unlockSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Unlock', unlockSchema);
+module.exports = mongoose.model('Achievement', achievementSchema);

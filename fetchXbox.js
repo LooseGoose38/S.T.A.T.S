@@ -1,10 +1,18 @@
 require('dotenv').config();
 const axios = require('axios');
+const mongoose = require('mongoose');
 
-async function getXboxAchievements(){
+//import my game blueprint
+const Game = require('./models/Game');
+
+async function syncXboxGames(){
     try{
-        console.log('fetching recent Xbox achievements...');
+        //connect to the database
+        console.log('Connecting to database...');
+        await mongoose.connect(process.env.MONGO_URI);
 
+        //fetch data from OpenXBL
+        console.log('Fetching recent Xbox data...');
         const response = await axios.get('https://xbl.io/api/v2/achievements', {
             headers: {
                 'X-Authorization': process.env.OPENXBL_API_KEY,
@@ -12,14 +20,39 @@ async function getXboxAchievements(){
                 'Accept-Language': 'en-US'
             }
         });
-        const mostRecentGame = response.data.content.titles[0];
 
-        console.log('Success! detailed structured: ');
-        console.log(JSON.stringify(mostRecentGame, null, 2));
+        //Grab the most recent title
+        const rawData = response.data.content.titles[0];
+
+        //find box art URL by searching the images array
+        const boxArtImage = rawData.images.find(img => img.type === 'BoxArt' || img.type === 'Poster');
+
+        //map the raw JSON to database schema
+        const newGame = new Game({
+            externalGameId: rawData.titleId,
+            title: rawData.name,
+            platform: rawData.devices[0] || 'Xbox',
+            ecosystem: 'Xbox',
+            boxArtUrl: boxArtImage ? boxArtImage.url : '',
+            progress: {
+                unlockedCount: rawData.achievement.currentAchievements,
+                totalCount: rawData.achievement.totalAchievements,
+                completionPercentage: rawData.achievement.progressPercentage
+            },
+            lastPlayed: rawData.titleHistory.lastTimePlayed
+        });
+
+        //save to MongoDB
+        await newGame.save();
+        console.log(`Successfully saved "${newGame.title}" to your database`);
 
     } catch (error) {
-        console.error('Error fetching data from OpenXBL:', error.response ? error.response.data : error.message);
+        console.error('an error occurred', error.message);
+    } finally {
+        //disconnect 
+        await mongoose.disconnect();
+        console.log('Disconnected from database');
     }
 }
 
-getXboxAchievements();
+syncXboxGames();
