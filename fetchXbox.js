@@ -12,10 +12,10 @@ async function getXboxAchievements(){
                 'Accept-Language': 'en-US'
             }
         });
-        const mostRecentGame = response.data.achievements;
+        const mostRecentGame = response.data.content.titles[0];
 
-        console.log('Success! Here is the raw data for your most recent achievement:');
-        console.log(response.data);
+        console.log('Success! detailed structured: ');
+        console.log(JSON.stringify(mostRecentGame, null, 2));
 
     } catch (error) {
         console.error('Error fetching data from OpenXBL:', error.response ? error.response.data : error.message);
