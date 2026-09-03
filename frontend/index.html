@@ -109,7 +109,7 @@
 
         <script>
             const API_URL = '/api/games';
-            
+
             function renderGrid(gameArray, containerId){
                 const grid = document.getElementById(containerId);
 
@@ -124,7 +124,7 @@
                     const unlockWord = game.ecosystem ===  'PlayStation' ? 'Trophies' : 'Achievements';
 
                     card.innerHTML = `
-                    <img src="${game.boxArtUrl}" alt="${game.title} Box Art">
+                    <img src="${game.boxArtUrl}" alt="${game.title} Box Art" loading="lazy">
                     <div class="game-title">${game.title}</div>
                     <div class="game-progress">
                         ${game.progress.unlockedCount} / ${game.progress.totalCount} ${unlockWord} (${game.progress.completionPercentage}%)
