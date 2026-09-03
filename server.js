@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // lets web browser fetch data
 app.use(express.json()); // tells server to use JSON
 
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 //connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
