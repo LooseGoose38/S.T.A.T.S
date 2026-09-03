@@ -2,16 +2,20 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+consts path = require('path');
 
 //import blueprints
 const Game = require('./models/Game');
 const Achievement = require('./models/Achievement');
 
 const app = express();
-const PORT = 3000;
+
+const PORT = process.env.PORT || 3000;
 
 app.use(cors()); // lets web browser fetch data
 app.use(express.json()); // tells server to use JSON
+
+app.use(express.static(__dirname));
 
 //connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
