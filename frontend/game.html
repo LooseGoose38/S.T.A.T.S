@@ -123,7 +123,7 @@
 
             async function loadGameDetails() {
                 try{
-                const gameRes = await fetch(`http://localhost:3000/api/games/${gameId}`);
+                const gameRes = await fetch(`/api/games/${gameId}`);
                 const game = await gameRes.json();
 
                 document.getElementById('game-header').innerHTML = `
@@ -131,7 +131,7 @@
                     <h1>${game.title}</h1>
                     <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
 
-            const achRes = await fetch(`http://localhost:3000/api/games/${gameId}/achievements`);
+            const achRes = await fetch(`/api/games/${gameId}/achievements`);
             const achievements = await achRes.json();
 
             const feedContainer = document.getElementById('achievement-feed');
