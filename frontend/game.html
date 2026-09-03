@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Game Details</title>
+        <style>
+            body{
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #ffffff;
+                margin: 0;
+                padding: 20px;
+                background-color: #0f172a;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            body::before, body::after{
+                content:''; position: fixed; border-radius: 50%; z-index: -1;
+            }
+
+            body::before {
+            top: 5%; left: 15%; width: 400px; height: 400px;
+            background: #3b82f6; filter: blur(120px); opacity: 0.4;
+            }
+
+            body::after {
+            bottom: 10%; right: 15%; width: 500px; height: 500px;
+            background: #8b5cf6; filter: blur(150px); opacity: 0.3;
+            }
+
+            /* header layout */
+            .header-container{
+                max-width: 800px;
+                margin: 0 auto 30px auto;
+                text-align: center;
+            }
+
+            .back-button{
+                display:inline-block;
+                margin-bottom:20px;
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 1.1em;
+                transition: color 0.2s;
+            }
+
+            .back-button:hover{ color: #ffffff; }
+
+            .header-container img {
+                width: 100%;
+                max-width: 500px;
+                border-radius: 12px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+                margin-bottom: 15px;
+            }
+
+            #achievement-feed{
+                max-width: 800px;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .achievement-card{
+                padding: 15px; display: flex; align-items: center; gap: 20px; border-radius: 16px;
+                background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: 1px solid rgba(255, 255, 255, 0.3); border-left: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            }
+
+            .locked-card{ opacity: 0.5; filter: grayscale(100%) }
+
+            .achievement-card img {
+                width: 64px;
+                height: 64px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+
+            .achievement-info { flex-grow: 1; }
+            .achievement-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+            .achievement-desc { color: #e2e8f0; font-size: 0.9em; margin-bottom: 5px;}
+            .achievement-meta { font-size: 0.85em; color: #94a3b8}
+
+            .reward-badge{
+                background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255, 255, 0.2);
+                padding: 6px 14px; border-radius: 20px; font-size: 0.9em; font-weight: bold;
+            }
+            
+            .platinum-glow {
+                background: linear-gradient(135deg, rgba(138, 180, 248, 0.2) 0%, rgba(138, 180, 248, 0.05) 100%);
+                border: 1px solid rgba(138, 180, 248, 0.5);
+                border-top: 2px solid rgba(138, 180, 248, 0.8);
+                border-left: 2px solid rgba(138, 180, 248, 0.8);
+
+                box-shadow: 0 0 25px 5px rgba(138, 180, 248, 0.3), 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            }
+
+            .platinum-glow .reward-badge{
+                background: rgba(138, 180, 248, 0.3);
+                border: 1px solid rgba(138, 180, 248, 0.6);
+                color: #ffffff;
+                text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header-container">
+            <a href="index.html" class="back-button"> ← Back</a>
+            <div id="game-header">
+                <h2>Loading...</h2>
+            </div>
+        </div>
+
+        <div id="achievement-feed"></div>
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get('id');
+
+            async function loadGameDetails() {
+                try{
+                const gameRes = await fetch(`http://localhost:3000/api/games/${gameId}`);
+                const game = await gameRes.json();
+
+                document.getElementById('game-header').innerHTML = `
+                    <img src ="${game.boxArtUrl}" alt="${game.title}">
+                    <h1>${game.title}</h1>
+                    <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
+
+            const achRes = await fetch(`http://localhost:3000/api/games/${gameId}/achievements`);
+            const achievements = await achRes.json();
+
+            const feedContainer = document.getElementById('achievement-feed');
+
+            achievements.forEach(ach => {
+                const card = document.createElement('div');
+                
+                let cardClasses = 'achievement-card';
+
+                if(!ach.isUnlocked){
+                    cardClasses += ' locked-card';
+                } else if (ach.weight.value === 'Platinum'){
+                    cardClasses += ' platinum-glow';
+                }
+
+                card.className = cardClasses;
+
+
+                const unlockText = ach.isUnlocked 
+                        ? `Unlocked on ${new Date(ach.unlockDate).toLocaleDateString()}` 
+                        : 'Locked';
+
+                card.innerHTML = `
+                        <img src="${ach.iconUrl}" alt="Achievement Icon">
+                        <div class="achievement-info">
+                            <div class="achievement-name">${ach.achievementName}</div>
+                            <div class="achievement-desc">${ach.description}</div>
+                            <div class="achievement-meta">${unlockText}</div>
+                        </div>
+                        <div class="reward-badge">
+                            ${ach.weight.value} ${ach.weight.type === 'Gamerscore' ? 'G' : ach.weight.type}
+                        </div>
+                    `;
+                    feedContainer.appendChild(card);
+            });
+            } catch (error) {
+                console.error('Error loading game:', error);
+                document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
+            }
+        }
+        if(gameId) loadGameDetails();
+        </script>
+    </body>
+</html>

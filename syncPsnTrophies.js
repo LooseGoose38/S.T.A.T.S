@@ -14,19 +14,22 @@ async function syncPsnGameAndTrophies(){
         const accessCode = await psn.exchangeNpssoForAccessCode(process.env.NPSSO_TOKEN);
         const authorization = await psn.exchangeAccessCodeForAuthTokens(accessCode);
 
-        console.log('fetching recent games...')
+        console.log('fetching full playstation library')
         const trophyTitlesResponse = await psn.getUserTitles(authorization, "me");
-        const targetGameRaw = trophyTitlesResponse.trophyTitles[0];
 
-        if(!targetGameRaw) return console.log('No PlayStation games found.');
-        console.log(`Processing game: ${targetGameRaw.trophyTitleName}`);
+        const allGames = trophyTitlesResponse.trophyTitles;
+
+        if(!allGames || allGames.length === 0) return console.log('No PlayStation games found.');
+        console.log(`Found ${allGames.length} games! Starting batch sync...`);
+
+        for(const targetGameRaw of allGames){
+            try{
 
         //calculate total and unlocked counts
         const totalTrophies = targetGameRaw.definedTrophies.bronze + targetGameRaw.definedTrophies.silver + targetGameRaw.definedTrophies.gold + targetGameRaw.definedTrophies.platinum;
         const unlockedTrophies = targetGameRaw.earnedTrophies.bronze + targetGameRaw.earnedTrophies.silver + targetGameRaw.earnedTrophies.gold + targetGameRaw.earnedTrophies.platinum;
 
         const updateData = {
-                externalGameId: targetGameRaw.npCommunicationId,
                 title: targetGameRaw.trophyTitleName,
                 platform: targetGameRaw.trophyTitlePlatform || 'PlayStation',
                 ecosystem: 'PlayStation',
@@ -42,27 +45,27 @@ async function syncPsnGameAndTrophies(){
             const gameDoc = await Game.findOneAndUpdate(
                 { externalGameId: targetGameRaw.npCommunicationId },
                 updateData,
-                { new: true, upsert: true }
+                { returnDocument: 'after', upsert: true }
             );
-        console.log('Game data synced/updated');
+        console.log(`Saved game info to database.`);
 
-        console.log('fetching trophy scorecard...');
         const userTrophiesResponse = await psn.getUserTrophiesEarnedForTitle(
             authorization, "me", targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName }
         );
 
-        console.log('fetching global trophy dictionary');
         const titleTrophiesResponse = await psn.getTitleTrophies(
             authorization, targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName }
         );
         
         //delete old achievement to prevent dupes
-        await Achievement.deleteMany({gameId: gameDoc._id });
+        await Achievement.deleteMany({ gameId: gameDoc._id });
 
         //merge the lists
         const achievementsToSave = userTrophiesResponse.trophies.map(userTrophy => {
 
             const titleTrophy = titleTrophiesResponse.trophies.find(t => t.trophyId === userTrophy.trophyId);
+
+            if(!titleTrophy) return null;
 
             return{
                 gameId: gameDoc._id,
@@ -77,20 +80,26 @@ async function syncPsnGameAndTrophies(){
                 weight:{
                     type: 'Trophy',
                     value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
-                    isRare: Number(titleTrophy.trophyEarnedRate) < 10.0
+                    isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
                 }
             };
-        });
+        }).filter(ach => ach !== null);
 
         await Achievement.insertMany(achievementsToSave);
-        console.log(`Success! Inserted ${achievementsToSave.length} PlayStation trophies into the database.`);
+        console.log(`Synced ${achievementsToSave.length} trophies.`);
 
-    } catch (error) {
-    console.error('An error occurred:', error.message);
-    } finally {
-    await mongoose.disconnect();
-    console.log('Disconnected from database.');
+    } catch (gameError) {
+        console.error(`Skipping ${targetGameRaw.trophyTitleName} due to error:`, gameError.message);
     }
 }
+
+} catch (error) {
+        console.error('A critical error occurred:', error.message);
+    } finally {
+        await mongoose.disconnect();
+        console.log('Disconnected from database.');
+    }
+}
+
 
 syncPsnGameAndTrophies();

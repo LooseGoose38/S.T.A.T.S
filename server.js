@@ -5,7 +5,7 @@ const cors = require('cors');
 
 //import blueprints
 const Game = require('./models/Game');
-const Achivement = require('./models/Achievement');
+const Achievement = require('./models/Achievement');
 
 const app = express();
 const PORT = 3000;
@@ -35,7 +35,7 @@ app.get('/api/games', async (req, res) =>{
 app.get('/api/feed', async (req, res) => {
     try{
         const feed = await Achievement.find({ isUnlocked: true })
-        .sort({ unlockedDate: -1 })
+        .sort({ unlockDate: -1 })
         .limit(50)
 
         res.json(feed);
@@ -43,6 +43,25 @@ app.get('/api/feed', async (req, res) => {
         res.status(500).json({ error: 'failed to fetch feed'});
     }
 });
+
+app.get('/api/games/:id', async (req, res) => {
+    try{
+        const game = await Game.findById(req.params.id);
+        res.json(game);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch game details'});
+    }
+});
+
+app.get('/api/games/:id/achievements', async (req, res) => {
+    try{
+        const achievements = await Achievement.find({ gameId: req.params.id })
+        .sort({ isUnlocked: -1, unlockDate: -1 });
+        res.json(achievements);
+    } catch (error){
+        res.status(500).json({ error: 'failed to fetch achievements'});
+    }
+})
 
 //start server
 app.listen(PORT, () => {

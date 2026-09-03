@@ -18,33 +18,40 @@ async function syncGameAndAchievements(){
 
     // find first real game
     const titles = listResponse.data.content.titles;
-    const targetGameRaw = titles.find(game => game.achievement.totalAchievements > 0 && !game.devices.includes('Xbox360'));
+    const validGames = titles.filter(game => game.achievement.totalAchievements > 0 && !game.devices.includes('Xbox360'));
 
-    if (!targetGameRaw) return console.log('No valid game found.');
-    console.log(`Processing game: ${targetGameRaw.name}`);
+    if (!validGames || validGames.length === 0) return console.log('No valid Xbox games found.');
+    console.log(`Found ${validGames.length} valid Xbox games! Starting batch sync...`);
 
+    // Open the loop
+    for (const targetGameRaw of validGames) {
+        try {
+            console.log(`\n--- Processing game: ${targetGameRaw.name} ---`);
+            
     //find game in database, or create if does not exists
-    let gameDoc = await Game.findOne({ externalGameId: targetGameRaw.titleId });
+    //Pack all the data into an update object
+            const boxArtImage = targetGameRaw.images.find(img => img.type === 'BoxArt' || img.type === 'Poster');
+            
+            const updateData = {
+                title: targetGameRaw.name,
+                platform: targetGameRaw.devices[0] || 'Xbox',
+                ecosystem: 'Xbox',
+                boxArtUrl: boxArtImage ? boxArtImage.url : '',
+                progress: {
+                    unlockedCount: targetGameRaw.achievement.currentAchievements,
+                    totalCount: targetGameRaw.achievement.totalAchievements,
+                    completionPercentage: targetGameRaw.achievement.progressPercentage
+                },
+                lastPlayed: targetGameRaw.titleHistory.lastTimePlayed
+            };
 
-    if(!gameDoc){
-        const boxArtIamge = targetGameRaw.images.find(img => img.type === 'BoxArt' || img.type === 'Poster');
-        gameDoc = new Game ({
-            externalGameId: targetGameRaw.titleId,
-            title: targetGameRaw.name,
-            platform: targetGameRaw.devices[0] || 'Xbox',
-            ecosystem: 'Xbox',
-            boxArtUrl: boxArtIamge ? boxArtIamge.url : '',
-            progress:{
-                unlockedCount: targetGameRaw.achievement.currentAchievements,
-                totalCount: targetGameRaw.achievement.totalAchievements,
-                completionPercentage: targetGameRaw.achievement.progressPercentage
-            },
-            lastPlayed: targetGameRaw.titleHistory.lastTimePlayed
-        });
-
-        await gameDoc.save();
-        console.log('Saved new game to database.');
-    }
+            // Upsert the game (update if exists, insert if new)
+            const gameDoc = await Game.findOneAndUpdate(
+                { externalGameId: targetGameRaw.titleId },
+                updateData,
+                { returnDocument: 'after', upsert: true }
+            );
+            console.log(`Saved game info to database.`);
 
     console.log('fetching achievement list');
     const detailsResponse = await axios.get(`https://xbl.io/api/v2/achievements/title/${targetGameRaw.titleId}`,{
@@ -102,9 +109,12 @@ async function syncGameAndAchievements(){
     //bulk insert translated array
     await Achievement.insertMany(achievementsToSave);
     console.log(`Success! Inserted ${achievementsToSave.length} achievements into the database.`);
-
+    } catch (gameError) {
+            console.error(`Skipping ${targetGameRaw.name} due to error:`, gameError.message);
+    }
+    }
     } catch (error) {
-        console.error('An error occured: ', error.message);
+        console.error('An error occurred: ', error.message);
     } finally {
         await mongoose.disconnect();
         console.log('Disconnected from database');
