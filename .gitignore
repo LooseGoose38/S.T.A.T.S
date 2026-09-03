@@ -2,3 +2,4 @@
 .env
 .env.local
 NPPSO.mjs
+node_modules/
