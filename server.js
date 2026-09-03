@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-consts path = require('path');
+const path = require('path');
 
 //import blueprints
 const Game = require('./models/Game');
