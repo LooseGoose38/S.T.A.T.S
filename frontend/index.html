@@ -6,7 +6,7 @@
         <title>My Game Library</title>
         <style>
             body{
-                font-family:'Segoe UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
                 margin: 0;
                 padding: 20px;
@@ -42,7 +42,17 @@
                 letter-spacing: 1px;
             }
 
-            #game-grid{
+            .platform-header {
+                max-width: 1200px;
+                margin: 40px auto 20px auto;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+            }
+
+            .psn-header { color: #0070d1; text-shadow: 0 0 10px rgba(0, 113, 209, 0.5);}
+            .xbox-header { color: #107c10; text-shadow: 0 0 10px rgba(16, 124, 16, 0.5);}
+
+            .game-grid{
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                 gap: 30px;
@@ -91,38 +101,55 @@
 
         <h1>S.T.A.T.S</h1>
 
-        <div id="game-grid"></div>
+        <h2 class="platform-header psn-header">PlayStation Library</h2>
+        <div id="psn-grid" class="game-grid"></div>
+
+        <h2 class="platform-header xbox-header">Xbox Library</h2>
+        <div id="xbox-grid" class="game-grid"></div>
 
         <script>
             const API_URL = 'http://localhost:3000/api/games';
+
+            function renderGrid(gameArray, containerId){
+                const grid = document.getElementById(containerId);
+
+                gameArray.forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+
+                    card.onclick = () => {
+                        window.location.href = `game.html?id=${game._id}`;
+                    };
+
+                    const unlockWord = game.ecosystem ===  'PlayStation' ? 'Trophies' : 'Achievements';
+
+                    card.innerHTML = `
+                    <img src="${game.boxArtUrl}" alt="${game.title} Box Art">
+                    <div class="game-title">${game.title}</div>
+                    <div class="game-progress">
+                        ${game.progress.unlockedCount} / ${game.progress.totalCount} ${unlockWord} (${game.progress.completionPercentage}%)
+                    </div>
+                `;
+                grid.appendChild(card);
+                });
+            }
+
+
 
             async function loadGames(){
                 try{
                     const response = await fetch(API_URL);
                     const games = await response.json();
 
-                    const grid = document.getElementById('game-grid');
+                    const psnGames = games.filter(game => game.ecosystem === 'PlayStation');
+                    const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
 
-                    games.forEach(game => {
-                        const card = document.createElement('div');
-                        card.className = 'game-card';
+                    renderGrid(psnGames, 'psn-grid');
+                    renderGrid(xboxGames, 'xbox-grid');
 
-                        card.onclick = () => {
-                            window.location.href = `game.html?id=${game._id}`;
-                        };
-
-                        card.innerHTML = `
-                            <img src="${game.boxArtUrl}" alt="${game.title} Box Art">
-                        <div class="game-title">${game.title}</div>
-                        <div class="game-progress">
-                            ${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies (${game.progress.completionPercentage}%)
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                    });
                 } catch (error) { 
                     console.error('Error fetching games:', error);
-                    document.getElementById('game-grid').innerHTML = '<p> Error loading library. is the server running?</p>';
+                document.body.innerHTML += '<p style="text-align:center;">Error loading library. Is the server running?</p>';
                 }
             }
 
