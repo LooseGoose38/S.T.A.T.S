@@ -105,6 +105,12 @@
 
         <div style="text-align: right; max-width: 1200px; margin: 0 auto; padding-top: 10px;">
             <span id="welcome-message" style="color: 94a3b8; margin-right: 15px;"></span>
+
+            <button id="sync-btn" onclick="syncPlaystation()" style="background: rgba(59, 139, 246, 0.2); border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-right: 10px;">
+                Sync PlayStation Library
+            </button>
+
+            <!-- logout button -->
             <button onclick="logout()" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
                 Log Out
             </button>
@@ -161,18 +167,66 @@
 
             async function loadGames(){
                 try{
-                    const response = await fetch(API_URL);
-                    const games = await response.json();
+                    const token = localStorage.getItem('statsToken');
 
+                    const response = await fetch(API_URL, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Unauthorized or server error');
+                    }
+
+                    const games = await response.json();
                     const psnGames = games.filter(game => game.ecosystem === 'PlayStation');
                     // const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
+
+                    //clear the grid before rendering 
+                    document.getElementById('psn-grid').innerHTML = '';
 
                     renderGrid(psnGames, 'psn-grid');
                     //renderGrid(xboxGames, 'xbox-grid');
 
                 } catch (error) { 
                     console.error('Error fetching games:', error);
-                document.body.innerHTML += '<p style="text-align:center;">Error loading library. Is the server running?</p>';
+                    document.getElementById('psn-grid').innerHTML = '<p style="text-align:center;">Error loading library. Please try logging in again.</p>';
+                }
+            }
+
+            async function syncPlaystation() {
+                const syncBtn = document.getElementById('sync-btn');
+                const token = localStorage.getItem('statsToken');
+
+                //visual feedback
+
+                syncBtn.innerText = 'Syncing...';
+                syncBtn.disabled = true;
+                syncBtn.style.opacity = '0.5';
+
+                try{
+                    const res = await fetch('/api/sync/psn', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await res.json();
+
+                    if(res.ok){
+                        alert('Sync complete! Loading your games now.');
+                        loadGames();
+                    } else {
+                        alert('Error syncing: ' + (data.error || data.message));
+                    }
+                } catch (err){
+                    alert('Failed to connect to the server for syncing.');
+                } finally {
+                    syncBtn.innerText = 'Sync PlayStation';
+                    syncBtn.disabled = false;
+                    syncBtn.style.opacity = '1';
                 }
             }
 

@@ -1,21 +1,18 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const gameSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    title: { type: String, required: true },
-    platform: { type: String, required: true },
-    ecosystem: { type: String, required: true },
-    boxArtUrl: { type: String },
+    userId: { type: String, required: true },        
+    externalGameId: { type: String, required: true }, 
+    title: String,
+    platform: String,
+    ecosystem: String,
+    boxArtUrl: String,
     progress: {
-        unlockedCount: { type: Number, default: 0 },
-        totalCount: { type: Number, default: 0 },
-        completionPercentage: { type: Number, default: 0 }
+        unlockedCount: Number,
+        totalCount: Number,
+        completionPercentage: Number
     },
-    lastPlayed: { type: Date }
+    lastPlayed: Date
 });
 
 module.exports = mongoose.model('Game', gameSchema);

@@ -1,30 +1,18 @@
 const mongoose = require('mongoose');
 
 const achievementSchema = new mongoose.Schema({
-    userId:{ 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    
-    gameId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Game',
-        required: true
-    },
-    gameTitle: {type: String, required: true },
-    achievementName: { type: String, required: true },
-    description: { type: String, required: true },
-    iconUrl: { type: String, required: true },
-
-    isUnlocked: { type: Boolean, default: false },
-
-    unlockDate: { type: Date },
-
+    userId: { type: String, required: true },
+    gameId: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
+    gameTitle: String,
+    achievementName: String,
+    description: String,
+    iconUrl: String,
+    isUnlocked: Boolean,
+    unlockDate: Date,
     weight: {
-        type: { type: String, required: true },
-        value: { type: String, required: true },
-        isRare: { type: Boolean, default: false }
+        type: { type: String },
+        value: String,
+        isRare: Boolean
     }
 });
 
