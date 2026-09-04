@@ -1,7 +1,11 @@
 const mongoose = require('mongoose')
 
 const gameSchema = new mongoose.Schema({
-    externalGameId: { type: String, required: true },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     title: { type: String, required: true },
     platform: { type: String, required: true },
     ecosystem: { type: String, required: true },

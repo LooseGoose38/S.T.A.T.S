@@ -67,6 +67,39 @@ app.get('/api/games/:id/achievements', async (req, res) => {
     }
 })
 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('./models/User');
+
+//registration endpoint
+app.post('/api/auth/register', async (req, res) => {
+    try{
+    //check if the username has been taken
+    let existingUser = await User.findOne({ username });
+    if(existingUser){
+        return res.status(400).json({ message: 'Username is already taken'});
+    }
+
+
+    //hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+        username: username,
+        password: hashedPassword,
+        psnId: psnId
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: 'User registered successfully'})
+} catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Server error during registration.' });
+}
+});
+
+
 //start server
 app.listen(PORT, () => {
     console.log(`Server is live and listening on http://localhost:${PORT}`);
