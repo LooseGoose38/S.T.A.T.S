@@ -74,6 +74,9 @@ const User = require('./models/User');
 //registration endpoint
 app.post('/api/auth/register', async (req, res) => {
     try{
+
+    const { username, password, psnId } = req.body;
+
     //check if the username has been taken
     let existingUser = await User.findOne({ username });
     if(existingUser){
@@ -131,7 +134,7 @@ app.post('/api/auth/login', async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).jsom({ message: 'Server error during login.' });
+        res.status(500).json({ message: 'Server error during login.' });
     }
 });
 
