@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width", inital-scale="1.0">
+        <meta name="viewport" content="width=device-width", initial-scale="1.0">
         <title>S.T.A.T.S - Authentication</title>
         <style>
             body{
@@ -47,7 +47,7 @@
                 background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
-                border: 1px solid rgba (255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.1);
                 border-radius: 20px;
                 padding: 40px;
                 width: 100%;
@@ -129,7 +129,7 @@
 
             const formTitle = document.getElementById('form-title')
             const psnInput = document.getElementById('psnId');
-            const submitBtn = document.getElementById('sumbit-btn');
+            const submitBtn = document.getElementById('submit-btn');
             const toggleMode = document.getElementById('toggle-mode')
             const form = document.getElementById('auth-form')
             const messageDiv = document.getElementById('message');
@@ -179,15 +179,43 @@
                             setTimeout(() => toggleMode.click(), 2000);
                         } else {
                             messageDiv.style.color = '#f87171';
-                            messageDiv.innerText = data.message || 'Registration';
+                            messageDiv.innerText = data.message || 'Registration Failed';
                         }
                     } catch (err) {
                         messageDiv.style.color = '#f87171';
                         messageDiv.innerText = 'Error connecting to the server.';
                     }
                 } else {
-                    messageDiv.style.color = '#fbd38d';
-                    messageDiv.innerText = 'Login endpoint not built yet!';
+                    try{
+                        const res = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, password })
+                        });
+
+                        const data = await res.json();
+
+                        if(res.ok){
+                            messageDiv.style.color = '#4ade80';
+                            messageDiv.innerText = 'Login Successful, Redirecting...';
+
+                            //save token to the browser's memory
+                            localStorage.setItem('statsToken', data.token);
+                            //save the username
+                            localStorage.setItem('statsUsername', data.username);
+
+                            //teleport the user to the main dashboard after 1 sec
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1000);
+                        } else {
+                            messageDiv.style.color = '#f87171';
+                            messageDiv.innerText = data.message || 'Login failed';
+                        }
+                    } catch (err) {
+                        messageDiv.style.color = '#f87171';
+                        messageDiv.innerText = 'Error connecting to the server';
+                    }
                 }
             });
         </script>

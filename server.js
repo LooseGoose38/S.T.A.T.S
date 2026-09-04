@@ -99,6 +99,42 @@ app.post('/api/auth/register', async (req, res) => {
 }
 });
 
+app.post('/api/auth/login', async (req, res) => {
+    try{
+        const { username, password } = req.body;
+
+        //find user in the database
+        const user = await User.findOne({ username });
+        if(!user) { 
+            return res.status(400).json({ message: 'Invalid username or password.' });
+        }
+
+        //compare the typed password against saved encrypted password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch) {
+            return res.status(400).json({ message: 'Invalid username or password'});
+        }
+
+        //generate the JWT 
+        const token = jwt.sign(
+            { userId: user._id, psnId: user.psnId },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        //send the token back to the frontend
+        res.json({
+            message: 'Login successful',
+            token: token,
+            username: user.username
+        });
+
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).jsom({ message: 'Server error during login.' });
+    }
+});
+
 
 //start server
 app.listen(PORT, () => {
