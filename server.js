@@ -77,13 +77,13 @@ app.get('/api/feed',verifyToken, async (req, res) => {
 app.get('/api/games/:id', verifyToken, async (req, res) => {
     try{
         const game = await Game.findOne({ _id: req.params.id, userId: req.user.userId });
-        res.json(game);
+        
 
         if (!game) {
             return res.status(404).json({ error: 'Game not found or access denied.' });
         }
 
-    res.json(game);
+        return res.json(game);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch game details'});
     }
@@ -94,7 +94,7 @@ app.get('/api/games/:id/achievements', verifyToken, async (req, res) => {
         const achievements = await Achievement.find({ gameId: req.params.id, userId: req.user.userId })
         .sort({ isUnlocked: -1, unlockDate: -1 });
 
-        res.json(achievements);
+        return res.json(achievements);
     } catch (error){
         res.status(500).json({ error: 'failed to fetch achievements'});
     }
