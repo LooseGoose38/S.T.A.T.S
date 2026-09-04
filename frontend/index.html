@@ -98,6 +98,17 @@
     </head>
 
     <body>
+        <script>
+            const token = localStorage.getItem('statsToken');
+            if(!token) window.location.href = 'login.html';
+        </script>
+
+        <div style="text-align: right; max-width: 1200px; margin: 0 auto; padding-top: 10px;">
+            <span id="welcome-message" style="color: 94a3b8; margin-right: 15px;"></span>
+            <button onclick="logout()" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
+                Log Out
+            </button>
+        </div>
 
         <h1>S.T.A.T.S</h1>
 
@@ -108,6 +119,18 @@
         <!-- <div id="xbox-grid" class="game-grid"></div> -->
 
         <script>
+            //display the logged-in user's name
+            const savedUsername = localStorage.getItem('statsUsername');
+            if(savedUsername){
+                document.getElementById('welcome-message').innerText = `Logged in as: ${savedUsername}`;
+            }
+
+            //logout function
+            function logout(){
+                localStorage.removeItem('statsToken');
+                localStorage.removeItem('statsUsername');
+                window.location.href = 'login.html'
+            }
             const API_URL = '/api/games';
 
             function renderGrid(gameArray, containerId){
