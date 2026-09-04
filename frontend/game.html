@@ -122,8 +122,22 @@
             const gameId = urlParams.get('id');
 
             async function loadGameDetails() {
+                
+                    const token = localStorage.getItem('statsToken');
+                    if(!token){
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
                 try{
-                const gameRes = await fetch(`/api/games/${gameId}`);
+
+                const gameRes = await fetch(`/api/games/${gameId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if(!gameRes.ok) throw new Error('Failed to load game details');
                 const game = await gameRes.json();
 
                 document.getElementById('game-header').innerHTML = `
@@ -131,10 +145,16 @@
                     <h1>${game.title}</h1>
                     <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
 
-            const achRes = await fetch(`/api/games/${gameId}/achievements`);
-            const achievements = await achRes.json();
+                const achRes = await fetch(`/api/games/${gameId}/achievements`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
 
-            const feedContainer = document.getElementById('achievement-feed');
+                    if (!achRes.ok) throw new Error('Failed to load achievements');
+                    const achievements = await achRes.json();
+
+                    const feedContainer = document.getElementById('achievement-feed');
 
             achievements.forEach(ach => {
                 const card = document.createElement('div');
