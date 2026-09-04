@@ -142,10 +142,10 @@
                     const games = await response.json();
 
                     const psnGames = games.filter(game => game.ecosystem === 'PlayStation');
-                    const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
+                    // const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
 
                     renderGrid(psnGames, 'psn-grid');
-                    renderGrid(xboxGames, 'xbox-grid');
+                    //renderGrid(xboxGames, 'xbox-grid');
 
                 } catch (error) { 
                     console.error('Error fetching games:', error);
