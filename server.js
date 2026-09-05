@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const psn = require('psn-api');
+const { scrapeTrophyGuide } = require('./utils/scraper');
 
 
 //import blueprints
@@ -295,6 +296,56 @@ app.post('/api/sync/psn', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Sync error', error);
         res.status(500).json({ error: 'Failed to sync Playstation data. '})
+    }
+});
+
+// Secure guide scraping route
+// Secure guide scraping route (WITH CACHING)
+app.post('/api/guide', verifyToken, async (req, res) => {
+    try {
+        const { trophyName, gameId } = req.body;
+        console.log(`Frontend requested guide for: ${trophyName} using Game ID: ${gameId}`);
+
+        // 1. Find the specific achievement in the database
+        const achievement = await Achievement.findOne({ 
+            achievementName: trophyName, 
+            gameId: gameId,
+            userId: req.user.userId 
+        });
+
+        if (!achievement) {
+            return res.status(404).json({ error: 'Achievement not found.' });
+        }
+
+        // 2. CHECK CACHE: If we already scraped this, serve it instantly!
+        if (achievement.guideHtml && achievement.guideHtml !== '') {
+            console.log(`⚡ Serving cached guide from MongoDB for: ${trophyName}`);
+            return res.json({ guide: achievement.guideHtml });
+        }
+
+        // 3. CACHE MISS: Find the URL and launch the bot
+        const game = await Game.findOne({ 
+            _id: achievement.gameId, 
+            userId: req.user.userId 
+        });
+        
+        console.log(`Database Lookup -> Game Found: ${!!game} | URL: ${game ? game.guideUrl : 'N/A'}`);
+
+        if (!game || !game.guideUrl) {
+            return res.json({ guide: '<p style="color: #ef4444;">No guide available for this game yet.</p>' });
+        }
+
+        console.log(`Scraping guide for the first time...`);
+        const guideHtml = await scrapeTrophyGuide(game.guideUrl, trophyName);
+        
+        // 4. SAVE TO MONGODB: Cache the result so we never have to scrape this trophy again
+        achievement.guideHtml = guideHtml;
+        await achievement.save();
+        
+        return res.json({ guide: guideHtml });
+    } catch (error) {
+        console.error('Guide API error:', error);
+        return res.status(500).json({ error: 'Failed to fetch guide data.' });
     }
 });
 

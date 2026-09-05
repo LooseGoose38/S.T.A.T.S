@@ -63,12 +63,24 @@
                 gap: 15px;
             }
             .achievement-card{
-                padding: 15px; display: flex; align-items: center; gap: 20px; border-radius: 16px;
+                padding: 15px; 
+                display: flex; 
+                flex-direction: column;
+                border-radius: 16px;
                 background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
-                backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                backdrop-filter: blur(16px); 
+                -webkit-backdrop-filter: blur(16px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
-                border-top: 1px solid rgba(255, 255, 255, 0.3); border-left: 1px solid rgba(255, 255, 255, 0.3);
+                border-top: 1px solid rgba(255, 255, 255, 0.3); 
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
                 box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            }
+
+            .card-top-row{
+                display: flex;
+                align-items: flex-start;
+                gap: 20px;
+                width: 100%;
             }
 
             .locked-card{ opacity: 0.5; filter: grayscale(100%) }
@@ -84,6 +96,83 @@
             .achievement-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
             .achievement-desc { color: #e2e8f0; font-size: 0.9em; margin-bottom: 5px;}
             .achievement-meta { font-size: 0.85em; color: #94a3b8}
+
+            .guide-dropdown {
+                margin-top: 12px;
+            }
+
+            .guide-content {
+                margin-top: 10px;
+                padding: 15px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                overflow-x: hidden;
+            }
+            .guide-content img,
+            .guide-content iframe,
+            .guide-content video {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                margin-top: 10px;
+                display: block;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+
+            .guide-content iframe {
+                aspect-ratio: 16 / 9;
+                width: 100%;
+            }
+
+            /* --- NORMAL DATA TABLES (Coordinates, etc.) --- */
+            .guide-content table:not(.invisible) {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .guide-content table:not(.invisible) th, 
+            .guide-content table:not(.invisible) td {
+                padding: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                text-align: left;
+                font-size: 0.9em;
+                color: #e2e8f0;
+            }
+
+            .guide-content table:not(.invisible) th {
+                background: rgba(255, 255, 255, 0.1);
+                font-weight: bold;
+                color: #ffffff;
+            }
+
+            /* --- INVISIBLE LAYOUT TABLES (Side-by-side images) --- */
+            .guide-content table.invisible {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                background: transparent;
+                border: none;
+            }
+
+            .guide-content table.invisible td {
+                padding: 5px; /* Adds a clean gap between the side-by-side images */
+                border: none;
+                vertical-align: top;
+            }
+
+            /* Force layout images to perfectly fill their half of the screen */
+            .guide-content table.invisible img,
+            .guide-content img.fr-fic {
+                width: 100%; 
+                height: auto;
+                border-radius: 8px;
+                display: block;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
 
             .reward-badge{
                 background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255, 255, 0.2);
@@ -175,6 +264,7 @@
                         : 'Locked';
 
                 card.innerHTML = `
+                    <div class="card-top-row">
                         <img src="${ach.iconUrl}" alt="Achievement Icon">
                         <div class="achievement-info">
                             <div class="achievement-name">${ach.achievementName}</div>
@@ -184,7 +274,15 @@
                         <div class="reward-badge">
                             ${ach.weight.value} ${ach.weight.type === 'Gamerscore' ? 'G' : ach.weight.type}
                         </div>
-                    `;
+                    </div>
+                    
+                    <!-- 🚨 MOVED OUTSIDE: Now spans the entire width of the card -->
+                    <details class="guide-dropdown" style="width: 100%;" ontoggle="if(this.open) fetchGuide(this, '${ach.achievementName.replace(/'/g, "\\'")}', '${gameId}')">
+                        <summary>View Guide</summary>
+                        <div class="guide-content"></div>
+                    </details>
+                `;
+
                     feedContainer.appendChild(card);
             });
             } catch (error) {
@@ -192,6 +290,39 @@
                 document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
             }
         }
+
+        async function fetchGuide(detailsElement, trophyName, gameTitle) {
+            // If we already scraped this data, don't run the bot again!
+            if (detailsElement.dataset.loaded) return;
+            detailsElement.dataset.loaded = 'true';
+
+            const contentDiv = detailsElement.querySelector('.guide-content');
+            contentDiv.innerHTML = '<p style="color: #94a3b8;"><em>Grabing the Guide!</em></p>';
+
+            const token = localStorage.getItem('statsToken');
+
+            try {
+                const res = await fetch('/api/guide', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ trophyName: trophyName, gameId: gameId })
+                });
+
+                if (!res.ok) throw new Error('Failed to fetch guide');
+                const data = await res.json();
+                
+                // Inject the scraped HTML (and screenshots) directly into the dropdown
+                contentDiv.innerHTML = data.guide;
+            } catch (error) {
+                contentDiv.innerHTML = '<p style="color: #ef4444;">Error connecting to the scraper.</p>';
+                // Reset the loaded state so they can try clicking it again
+                delete detailsElement.dataset.loaded; 
+            }
+        }
+
         if(gameId) loadGameDetails();
         </script>
     </body>

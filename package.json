@@ -18,7 +18,10 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.6.0",
     "mongoose": "^9.9.4",
-    "psn-api": "^2.18.1"
+    "psn-api": "^2.18.1",
+    "puppeteer": "^25.10.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "repository": {
     "type": "git",

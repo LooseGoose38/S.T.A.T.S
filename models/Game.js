@@ -12,7 +12,8 @@ const gameSchema = new mongoose.Schema({
         totalCount: Number,
         completionPercentage: Number
     },
-    lastPlayed: Date
+    lastPlayed: Date,
+    guideUrl: String
 });
 
 module.exports = mongoose.model('Game', gameSchema);

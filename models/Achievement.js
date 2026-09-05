@@ -13,6 +13,10 @@ const achievementSchema = new mongoose.Schema({
         type: { type: String },
         value: String,
         isRare: Boolean
+    },
+    guideHtml: {
+        type: String,
+        default: ''
     }
 });
 
