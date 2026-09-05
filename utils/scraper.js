@@ -64,7 +64,7 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
 
     try {
         console.log(`Navigating to: ${targetUrl}`);
-        await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto(targetUrl, { waitUntil: 'documentloaded', timeout: 60000 });
 
         const result = await page.evaluate((trophyName) => {
             
