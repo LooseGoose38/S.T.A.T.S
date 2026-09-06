@@ -56,7 +56,8 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
             '--disable-accelerated-2d-canvas',
             '--disable-gpu',
             '--no-zygote', // Helps reduce memory footprint on Linux servers
-            '--disable-features=IsolateOrigins,site-per-process' // Reduces memory overhead
+            '--disable-features=IsolateOrigins,site-per-process', // Reduces memory overhead
+            '--single-process'
         ]
     });
 
@@ -64,11 +65,20 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     await page.setViewport({ width: 1920, height: 1080 });
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
 
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        const resourceType = req.resourceType();
+        if (resourceType === 'image' || resourceType === 'media') {
+            req.abort(); // Block images and videos to save 400MB+ of RAM
+        } else {
+            req.continue(); // Allow scripts, CSS, and fonts for Cloudflare
+        }
+    });
 
     try {
         console.log(`Navigating to: ${targetUrl}`);
-        // Now that images/CSS are blocked, this will hit 'domcontentloaded' almost instantly
         await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 90000 });
+
         console.log('Waiting for Cloudflare check and guide rendering...');
         await page.waitForSelector('.fr-view', { timeout: 60000 });
 
