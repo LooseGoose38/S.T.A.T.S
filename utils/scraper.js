@@ -71,7 +71,7 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
         const resourceType = req.resourceType();
         // Block images, stylesheets, media, and fonts.
         // We only care about the DOM/HTML.
-        if (['image', 'stylesheet', 'media', 'font'].includes(resourceType)) {
+        if (['image', 'media', 'font'].includes(resourceType)) {
             req.abort();
         } else {
             req.continue();
@@ -83,6 +83,8 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
         console.log(`Navigating to: ${targetUrl}`);
         // Now that images/CSS are blocked, this will hit 'domcontentloaded' almost instantly
         await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        console.log('Waiting for Cloudflare check and guide rendering...');
+        await page.waitForSelector('.fr-view', { timeout: 30000 });
 
         const result = await page.evaluate((trophyName) => {
             
