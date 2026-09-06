@@ -64,27 +64,13 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     await page.setViewport({ width: 1920, height: 1080 });
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
 
-    // 🚨 --- NEW: CLOUD PERFORMANCE OPTIMIZATION --- 🚨
-    // Intercept network requests to block heavy files we don't need for scraping HTML
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-        const resourceType = req.resourceType();
-        // Block images, stylesheets, media, and fonts.
-        // We only care about the DOM/HTML.
-        if (['image', 'media', 'font'].includes(resourceType)) {
-            req.abort();
-        } else {
-            req.continue();
-        }
-    });
-    // ------------------------------------------------
 
     try {
         console.log(`Navigating to: ${targetUrl}`);
         // Now that images/CSS are blocked, this will hit 'domcontentloaded' almost instantly
-        await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 90000 });
         console.log('Waiting for Cloudflare check and guide rendering...');
-        await page.waitForSelector('.fr-view', { timeout: 30000 });
+        await page.waitForSelector('.fr-view', { timeout: 60000 });
 
         const result = await page.evaluate((trophyName) => {
             
