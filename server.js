@@ -299,7 +299,103 @@ app.post('/api/sync/psn', verifyToken, async (req, res) => {
     }
 });
 
-// Secure guide scraping route
+// secure singe game sync route
+app.post('/api/sync/game', verifyToken, async (req, res) => {
+    try{
+        const { externalGameId } = req.body;
+        const targetUserId = req.user.userId;
+        const targetPsnId = req.user.psnId;
+
+        console.log(`Starting targeted PSN sync for Game ID: ${externalGameId}...`);
+
+        //authenticate with PSN
+        const accessCode = await psn.exchangeNpssoForAccessCode(process.env.NPSSO_TOKEN);
+        const authorization = await psn.exchangeAccessCodeForAuthTokens(accessCode);
+
+        console.log('PSN Authentication Successful');
+
+        const profileResponse = await psn.getProfileFromUserName(authorization, targetPsnId);
+        const targetAccountId = profileResponse.profile ? profileResponse.profile.accountId : profileResponse.accountId;
+
+        //fetch the library, but only process the request game
+        const trophyTitlesResponse = await psn.getUserTitles(authorization, targetAccountId);
+        const targetGameRaw = trophyTitlesResponse.trophyTitles.find(g => g.npCommunicationId === externalGameId);
+
+        if(!targetGameRaw){
+            return res.status(404).json({ error: 'Game not found on your PSN profile'});
+        }
+        
+        //update the game document progress
+        const totalTrophies = targetGameRaw.definedTrophies.bronze + targetGameRaw.definedTrophies.silver + targetGameRaw.definedTrophies.gold + targetGameRaw.definedTrophies.platinum;
+        const unlockedTrophies = targetGameRaw.earnedTrophies.bronze + targetGameRaw.earnedTrophies.silver + targetGameRaw.earnedTrophies.gold + targetGameRaw.earnedTrophies.platinum;
+
+        const gameDoc = await Game.findOneAndUpdate(
+            { externalGameId: targetGameRaw.npCommunicationId, userId: targetUserId },
+            {
+                progress: {
+                    unlockedCount: unlockedTrophies,
+                    totalCount: totalTrophies,
+                    completionPercentage: targetGameRaw.progress
+                },
+                lastPlayed: targetGameRaw.lastUpdatedDateTime
+            },
+            { returnDocument: 'after' }
+        );
+
+        console.log('Game progress updated in MongoDB');
+
+        //fetch and update only this game's trophies
+        const userTrophiesResponse = await psn.getUserTrophiesEarnedForTitle(
+            authorization, targetAccountId, targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName }
+        );
+        
+        const titleTrophiesResponse = await psn.getTitleTrophies(
+            authorization, targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName}
+        );
+
+        console.log('Trophy lists fetched from Sony');
+
+        const userTrophies = userTrophiesResponse.trophies || [];
+        const titleTrophies = titleTrophiesResponse.trophies || [];
+
+        await Achievement.deleteMany({ gameId: gameDoc._id, userId: targetUserId});
+
+        const achievementsToSave = userTrophies.map(userTrophy => {
+        const titleTrophy = titleTrophies.find(t => t.trophyId === userTrophy.trophyId);
+            if(!titleTrophy) return null;
+
+            return {
+                userId: targetUserId,
+                gameId: gameDoc._id,
+                gameTitle: gameDoc.title,
+                achievementName: titleTrophy.trophyName || 'Hidden Trophy',
+                description: titleTrophy.trophyDetail || 'Keep playing to reveal this trophy.',
+                iconUrl: titleTrophy.trophyIconUrl || '',
+                isUnlocked: userTrophy.earned,
+                unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
+                weight: {
+                    type: 'Trophy',
+                    value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
+                    isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                }
+            };
+        }).filter(ach => ach !== null);
+
+        if(achievementsToSave.length > 0){
+        await Achievement.insertMany(achievementsToSave);
+        console.log(`Inserted ${achievementsToSave.length} trophies into MongoDB!`);
+        } else {
+            console.log('No new trophies to insert.');
+        }
+
+        res.json({ success: true, message: 'Game synced successfully!' });
+    }catch (error) {
+        console.error('Targeted sync error:', error);
+        res.status(500).json({ error: 'Failed to sync specific game.'})
+
+    }
+});
+
 // Secure guide scraping route (WITH CACHING)
 app.post('/api/guide', verifyToken, async (req, res) => {
     try {

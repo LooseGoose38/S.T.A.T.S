@@ -55,6 +55,22 @@
                 margin-bottom: 15px;
             }
 
+            .sync-btn {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                margin-top: 10px;
+                transition:  0.2s;
+            }
+
+            .sync-btn:hover{
+                background: rgba(255, 255, 255, 0.2);
+            }
+
             #achievement-feed{
                 max-width: 800px;
                 margin: 0 auto;
@@ -213,6 +229,9 @@
             <div id="game-header">
                 <h2>Loading...</h2>
             </div>
+            <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
+                Sync Trophies
+            </button>
         </div>
 
         <div id="achievement-feed"></div>
@@ -300,6 +319,43 @@
                 console.error('Error loading game:', error);
                 document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
             }
+        }
+
+        async function triggerTargetedSync() {
+            const btn = document.getElementById('sync-game-btn');
+            btn.innerHTML = 'Syncing...';
+            btn.disable = true;
+
+            //fetch the current game's details to grab external PSN ID
+            const token = localStorage.getItem('statsToken');
+            const gameRes = await fetch(`/api/games/${gameId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const gameData = await gameRes.json();
+
+            try{
+                const response = await fetch('/api/sync/game', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+
+                    // Send the specific PSN ID to the backend
+                    body: JSON.stringify({ externalGameId: gameData.externalGameId })
+                });
+
+                if(response.ok) {
+                    btn.innerHTML = 'Synced';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    btn.innerHTML = 'Failed';
+                    btn.disable = false;
+                }
+            } catch (error) {
+                console.error(error);
+                btn.innerHTML = '🔄 Sync Trophies';
+                btn.disabled = false;
+            }
+            
         }
 
         async function fetchGuide(detailsElement, trophyName, gameTitle) {

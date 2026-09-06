@@ -54,7 +54,9 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--no-zygote', // Helps reduce memory footprint on Linux servers
+            '--disable-features=IsolateOrigins,site-per-process' // Reduces memory overhead
         ]
     });
 
@@ -62,8 +64,24 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     await page.setViewport({ width: 1920, height: 1080 });
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
 
+    // 🚨 --- NEW: CLOUD PERFORMANCE OPTIMIZATION --- 🚨
+    // Intercept network requests to block heavy files we don't need for scraping HTML
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        const resourceType = req.resourceType();
+        // Block images, stylesheets, media, and fonts.
+        // We only care about the DOM/HTML.
+        if (['image', 'stylesheet', 'media', 'font'].includes(resourceType)) {
+            req.abort();
+        } else {
+            req.continue();
+        }
+    });
+    // ------------------------------------------------
+
     try {
         console.log(`Navigating to: ${targetUrl}`);
+        // Now that images/CSS are blocked, this will hit 'domcontentloaded' almost instantly
         await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
         const result = await page.evaluate((trophyName) => {
