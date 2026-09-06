@@ -251,16 +251,25 @@
             <div id="game-header">
                 <h2>Loading...</h2>
             </div>
-            <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
+
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button id="sort-btn" class="sync-btn" onclick="toggleSort()">
+                    Sort: Locked First
+                </button>
+                <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
                 Sync Trophies
             </button>
         </div>
+    </div>
 
         <div id="achievement-feed"></div>
 
         <script>
             const urlParams = new URLSearchParams(window.location.search);
             const gameId = urlParams.get('id');
+
+            let globalAchievements = [];
+            let isSortedLockedFirst = false;
 
             async function loadGameDetails() {
                 
@@ -293,11 +302,21 @@
                     });
 
                     if (!achRes.ok) throw new Error('Failed to load achievements');
-                    const achievements = await achRes.json();
+                    
+                    globalAchievements = await achRes.json();
+                    renderAchievements(globalAchievements);
 
-                    const feedContainer = document.getElementById('achievement-feed');
+            } catch (error) {
+                    console.error('Error loading game:', error);
+                    document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
+                }
+        }
 
-            achievements.forEach(ach => {
+        function renderAchievements(achievementsArray){
+            const feedContainer = document.getElementById('achievement-feed');
+            feedContainer.innerHTML = '';
+
+            achievementsArray.forEach(ach => {
                 const card = document.createElement('div');
                 
                 let cardClasses = 'achievement-card';
@@ -328,7 +347,6 @@
                         </div>
                     </div>
                     
-                    <!-- 🚨 MOVED OUTSIDE: Now spans the entire width of the card -->
                     <details class="guide-dropdown" style="width: 100%;" ontoggle="if(this.open) fetchGuide(this, '${ach.achievementName.replace(/'/g, "\\'")}', '${gameId}')">
                         <summary>View Guide</summary>
                         <div class="guide-content"></div>
@@ -337,16 +355,32 @@
 
                     feedContainer.appendChild(card);
             });
-            } catch (error) {
-                console.error('Error loading game:', error);
-                document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
-            }
         }
+
+        function toggleSort(){
+            const sortBtn = document.getElementById('sort-btn');
+            isSortedLockedFirst = !isSortedLockedFirst;
+
+            if(isSortedLockedFirst) {
+                sortBtn.innerHTML = 'Sort: Unlocked First';
+            
+
+            const sortedAchievements = [...globalAchievements].sort((a, b) => {
+                if (a.isUnlocked === b.isUnlocked) return 0;
+                return a.isUnlocked ? 1 : -1;
+            });
+
+            renderAchievements(sortedAchievements);
+        } else {
+            sortBtn.innerHTML = 'Sort: Locked First';
+            renderAchievements(globalAchievements);
+        }
+    }
 
         async function triggerTargetedSync() {
             const btn = document.getElementById('sync-game-btn');
             btn.innerHTML = 'Syncing...';
-            btn.disable = true;
+            btn.disabled = true;
 
             //fetch the current game's details to grab external PSN ID
             const token = localStorage.getItem('statsToken');
@@ -370,7 +404,7 @@
                     setTimeout(() => location.reload(), 1000);
                 } else {
                     btn.innerHTML = 'Failed';
-                    btn.disable = false;
+                    btn.disabled = false;
                 }
             } catch (error) {
                 console.error(error);
