@@ -221,6 +221,28 @@
                 color: #ffffff;
                 text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
             }
+
+            @media (max-width: 600px){
+                .card-top-row{
+                    flex-direction: column;
+                    gap: 12px;
+                }
+
+                .reward-badge{
+                    align-self: flex-start;
+                }
+
+                .guide-content table:not(.invisible){
+                    display: block;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+
+                body::before, body::after{
+                    width: 250px;
+                    height: 250px;
+                }
+            }
         </style>
     </head>
     <body>

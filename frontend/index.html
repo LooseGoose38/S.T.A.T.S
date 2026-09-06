@@ -34,6 +34,63 @@
             }
 
 
+            .top-nav{
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding-top: 10px;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            #welcome-message { color: #94a3b8; }
+            .nav-btn {
+                padding: 8px 16px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: 0.3s;
+                font-weight: 600;
+            }
+
+            .sync-btn-style{
+                background: rgba(59, 139, 246, 0.2);
+                border: 1px solid #3b82f6;
+                color: #3b82f6;
+            }
+
+            .logout-btn-style{
+                background: rgba(248, 113, 113, 0.2);
+                border: 1px solid #f87171;
+                color: #f87171;
+            }
+
+            @media (max-width: 600px){
+                .top-nav{
+                    justify-content: center;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-bottom: 20px ;
+                }
+                .nav-actions{
+                    display: flex;
+                    gap: 10px;
+                    width: 100%;
+                }
+
+                .nav-btn{
+                    flex: 1;
+                }
+                .game-grid{
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 15px;
+                }
+
+                .game-title{
+                    font-size: 1em;
+                }
+            }
 
             h1{
                 text-align: center;
@@ -103,18 +160,14 @@
             if(!token) window.location.href = 'login.html';
         </script>
 
-        <div style="text-align: right; max-width: 1200px; margin: 0 auto; padding-top: 10px;">
-            <span id="welcome-message" style="color: 94a3b8; margin-right: 15px;"></span>
-
-            <button id="sync-btn" onclick="syncPlaystation()" style="background: rgba(59, 139, 246, 0.2); border: 1px solid #3b82f6; color: #3b82f6; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-right: 10px;">
-                Sync PlayStation Library
-            </button>
-
-            <!-- logout button -->
-            <button onclick="logout()" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
-                Log Out
-            </button>
+        <div class="top-nav">
+            <span id="welcome-message"></span>
+            <div class="nav-actions">
+                <button id="sync-btn" class="nav-btn sync-btn-style" onclick="syncPlaystation()">Sync PlayStation Library</button>
+                <button class="nav-btn logout-btn-style" onclick="logout()">Log Out</button>
+            </div>
         </div>
+        
 
         <h1>S.T.A.T.S</h1>
 
