@@ -56,8 +56,7 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
             '--disable-accelerated-2d-canvas',
             '--disable-gpu',
             '--no-zygote', // Helps reduce memory footprint on Linux servers
-            '--disable-features=IsolateOrigins,site-per-process', // Reduces memory overhead
-            '--single-process'
+            '--disable-features=IsolateOrigins,site-per-process' // Reduces memory overhead
         ]
     });
 
@@ -68,10 +67,23 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     await page.setRequestInterception(true);
     page.on('request', (req) => {
         const resourceType = req.resourceType();
-        if (resourceType === 'image' || resourceType === 'media') {
-            req.abort(); // Block images and videos to save 400MB+ of RAM
-        } else {
-            req.continue(); // Allow scripts, CSS, and fonts for Cloudflare
+        const url = req.url();
+
+        // 1. Always block heavy videos (YouTube embeds, GIFs disguised as video)
+        if (resourceType === 'media') {
+            req.abort();
+        } 
+        // 2. Block images to save RAM, EXCEPT Cloudflare's security images
+        else if (resourceType === 'image') {
+            if (url.includes('cdn-cgi') || url.includes('cloudflare')) {
+                req.continue(); // Let Cloudflare verify we are "human"
+            } else {
+                req.abort(); // Block the massive 4K guide screenshots
+            }
+        } 
+        // 3. Allow all HTML, JS, CSS, and Fonts so the page functions normally
+        else {
+            req.continue();
         }
     });
 
