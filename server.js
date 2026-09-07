@@ -240,31 +240,42 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                     authorization, targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName }
                 );
 
-                //delete old achievements only for the specific user
-                await Achievement.deleteMany({ gameId: gameDoc._id, userId: targetUserId });
-
-                const achievementsToSave = userTrophiesResponse.trophies.map(userTrophy => {
+                const bulkOps = userTrophiesResponse.trophies.map(userTrophy => {
                     const titleTrophy = titleTrophiesResponse.trophies.find(t => t.trophyId === userTrophy.trophyId);
                     if(!titleTrophy) return null;
 
                     return {
-                        userId: targetUserId, // 🚨 Tag the achievement with the user
-                        gameId: gameDoc._id,
-                        gameTitle: gameDoc.title,
-                        achievementName: titleTrophy.trophyName || 'Hidden Trophy',
-                        description: titleTrophy.trophyDetail || 'Keep playing to reveal this trophy.',
-                        iconUrl: titleTrophy.trophyIconUrl || '',
-                        isUnlocked: userTrophy.earned,
-                        unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
-                        weight: {
-                            type: 'Trophy',
-                            value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
-                            isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                        updateOne: {
+                            // Find the exact trophy
+                            filter: { 
+                                userId: targetUserId, 
+                                gameId: gameDoc._id, 
+                                achievementName: titleTrophy.trophyName || 'Hidden Trophy' 
+                            },
+                            // Only update these specific fields, leaving guideHtml safely untouched!
+                            update: {
+                                $set: {
+                                    gameTitle: gameDoc.title,
+                                    description: titleTrophy.trophyDetail || 'Keep playing to reveal this trophy.',
+                                    iconUrl: titleTrophy.trophyIconUrl || '',
+                                    isUnlocked: userTrophy.earned,
+                                    unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
+                                    weight: {
+                                        type: 'Trophy',
+                                        value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
+                                        isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                                    }
+                                }
+                            },
+                            // If it doesn't exist at all, insert it
+                            upsert: true
                         }
                     };
-                }).filter(ach => ach !== null);
+                }).filter(op => op !== null);
 
-                await Achievement.insertMany(achievementsToSave);
+                if (bulkOps.length > 0) {
+                    await Achievement.bulkWrite(bulkOps);
+                }
                 console.log(`Synced trophies for ${gameDoc.title}`);
 
                 await new Promise(resolve => setTimeout(resolve, 800));
@@ -358,34 +369,41 @@ app.post('/api/sync/game', verifyToken, async (req, res) => {
         const userTrophies = userTrophiesResponse.trophies || [];
         const titleTrophies = titleTrophiesResponse.trophies || [];
 
-        await Achievement.deleteMany({ gameId: gameDoc._id, userId: targetUserId});
-
-        const achievementsToSave = userTrophies.map(userTrophy => {
-        const titleTrophy = titleTrophies.find(t => t.trophyId === userTrophy.trophyId);
+        const bulkOps = userTrophies.map(userTrophy => {
+            const titleTrophy = titleTrophies.find(t => t.trophyId === userTrophy.trophyId);
             if(!titleTrophy) return null;
 
             return {
-                userId: targetUserId,
-                gameId: gameDoc._id,
-                gameTitle: gameDoc.title,
-                achievementName: titleTrophy.trophyName || 'Hidden Trophy',
-                description: titleTrophy.trophyDetail || 'Keep playing to reveal this trophy.',
-                iconUrl: titleTrophy.trophyIconUrl || '',
-                isUnlocked: userTrophy.earned,
-                unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
-                weight: {
-                    type: 'Trophy',
-                    value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
-                    isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                updateOne: {
+                    filter: { 
+                        userId: targetUserId, 
+                        gameId: gameDoc._id, 
+                        achievementName: titleTrophy.trophyName || 'Hidden Trophy' 
+                    },
+                    update: {
+                        $set: {
+                            gameTitle: gameDoc.title,
+                            description: titleTrophy.trophyDetail || 'Keep playing to reveal this trophy.',
+                            iconUrl: titleTrophy.trophyIconUrl || '',
+                            isUnlocked: userTrophy.earned,
+                            unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
+                            weight: {
+                                type: 'Trophy',
+                                value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
+                                isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                            }
+                        }
+                    },
+                    upsert: true
                 }
             };
-        }).filter(ach => ach !== null);
+        }).filter(op => op !== null);
 
-        if(achievementsToSave.length > 0){
-        await Achievement.insertMany(achievementsToSave);
-        console.log(`Inserted ${achievementsToSave.length} trophies into MongoDB!`);
+        if(bulkOps.length > 0){
+            await Achievement.bulkWrite(bulkOps);
+            console.log(`Updated ${bulkOps.length} trophies in MongoDB!`);
         } else {
-            console.log('No new trophies to insert.');
+            console.log('No new trophies to update.');
         }
 
         res.json({ success: true, message: 'Game synced successfully!' });
