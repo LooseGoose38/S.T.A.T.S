@@ -239,7 +239,12 @@
                 .guide-content table:not(.invisible){
                     display: block;
                     overflow-x: auto;
-                    white-space: nowrap;
+                }
+
+                .guide-content table:not(.invisible) img {
+                    max-width: 100%;
+                    min-width: 120px;
+                    height: auto;
                 }
 
                 body::before, body::after{
