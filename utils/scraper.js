@@ -2,15 +2,24 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
-// Activate the stealth plugin to hide our bot signature from Cloudflare
 puppeteer.use(StealthPlugin());
 
-// --- Simple in-memory cache ---
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-const guideCache = new Map(); // key -> { html, expiresAt }
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; 
+const guideCache = new Map(); 
+
+// Standardize names into slugs so we can cache every trophy flawlessly
+function slugify(str) {
+    return str
+        .toLowerCase()
+        .normalize('NFKD')                      
+        .replace(/[\u2018\u2019\u201B']/g, '')   
+        .replace(/[^a-z0-9]+/g, '-')             
+        .replace(/^-+|-+$/g, '')                 
+        .replace(/-+/g, '-');                    
+}
 
 function getCacheKey(targetUrl, targetTrophy) {
-    return `${targetUrl}::${targetTrophy}`;
+    return `${targetUrl}::${slugify(targetTrophy)}`;
 }
 
 function getFromCache(key) {
@@ -41,7 +50,7 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
 
     const cached = getFromCache(cacheKey);
     if (cached) {
-        console.log(`Cache hit for: ${targetTrophy} — skipping browser launch.`);
+        console.log(`RAM Cache hit for: ${targetTrophy} — skipping browser launch.`);
         return cached;
     }
 
@@ -55,34 +64,31 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
             '--disable-dev-shm-usage',
             '--disable-accelerated-2d-canvas',
             '--disable-gpu',
-            '--no-zygote', // Helps reduce memory footprint on Linux servers
-            '--disable-features=IsolateOrigins,site-per-process' // Reduces memory overhead
+            '--no-zygote', 
+            '--disable-features=IsolateOrigins,site-per-process' 
         ]
     });
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
+    
+    // Updated User Agent to Chrome 127 so Cloudflare is less suspicious
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36');
 
     await page.setRequestInterception(true);
     page.on('request', (req) => {
         const resourceType = req.resourceType();
         const url = req.url();
 
-        // 1. Always block heavy videos (YouTube embeds, GIFs disguised as video)
         if (resourceType === 'media') {
             req.abort();
-        } 
-        // 2. Block images to save RAM, EXCEPT Cloudflare's security images
-        else if (resourceType === 'image') {
+        } else if (resourceType === 'image') {
             if (url.includes('cdn-cgi') || url.includes('cloudflare')) {
-                req.continue(); // Let Cloudflare verify we are "human"
+                req.continue(); 
             } else {
-                req.abort(); // Block the massive 4K guide screenshots
+                req.abort(); 
             }
-        } 
-        // 3. Allow all HTML, JS, CSS, and Fonts so the page functions normally
-        else {
+        } else {
             req.continue();
         }
     });
@@ -94,119 +100,87 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
         console.log('Waiting for Cloudflare check and guide rendering...');
         await page.waitForSelector('.fr-view', { timeout: 60000 });
 
-        const result = await page.evaluate((trophyName) => {
+        console.log('Page loaded! Extracting EVERY trophy on the page at once...');
+
+        //Extract and map all trophies in one sweep
+        const allTrophiesData = await page.evaluate(() => {
+            const results = {};
             
-            function slugify(str) {
-                return str
-                    .toLowerCase()
-                    .normalize('NFKD')                      
-                    .replace(/[\u2018\u2019\u201B']/g, '')   
-                    .replace(/[^a-z0-9]+/g, '-')             
-                    .replace(/^-+|-+$/g, '')                 
-                    .replace(/-+/g, '-');                    
-            }
+            const allAnchoredEls = Array.from(document.querySelectorAll('[id]')).filter(el => /^\d+-/.test(el.id));
 
-            const targetSlug = slugify(trophyName);
+            allAnchoredEls.forEach(container => {
+                const slug = container.id.replace(/^\d+-/, '');
 
-            const allAnchoredEls = Array.from(document.querySelectorAll('[id]'))
-                .filter(el => /^\d+-/.test(el.id));
+                let targetContent = container.querySelector('.fr-view');
+                if (!targetContent) {
+                    targetContent = container.cloneNode(true);
+                    targetContent.querySelectorAll(
+                        '.sidebar, .side-panel, nav, table.roadmap, .breadcrumb, .comments, .comment-section, .section-tags'
+                    ).forEach(el => el.remove());
+                }
 
-            const availableSlugs = allAnchoredEls.map(el => el.id);
-
-            let container = allAnchoredEls.find(el => {
-                const idSlug = el.id.replace(/^\d+-/, '');
-                return idSlug === targetSlug;
-            });
-
-            if (!container) {
-                container = allAnchoredEls.find(el => {
-                    const idSlug = el.id.replace(/^\d+-/, '');
-                    return idSlug.includes(targetSlug) || targetSlug.includes(idSlug);
+                const images = targetContent.querySelectorAll('img');
+                images.forEach(img => {
+                    const parentLink = img.closest('a');
+                    if (parentLink && parentLink.href && parentLink.href.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                        img.src = parentLink.href; 
+                    }
+                    img.removeAttribute('width');
+                    img.removeAttribute('height');
                 });
-            }
 
-            const debugInfo = {
-                found: !!container,
-                searchedFor: trophyName,
-                targetSlug,
-                matchedId: container ? container.id : null,
-                totalAnchorsFound: allAnchoredEls.length,
-                availableSlugs,
-            };
+                const links = targetContent.querySelectorAll('a');
+                links.forEach(a => {
+                    if (a.innerText.trim().toLowerCase() === 'loading...') a.remove();
+                });
 
-            if (!container) {
-                return {
-                    html: '<p style="color: #ef4444;">Guide details coming soon or not found on page.</p>',
-                    debug: debugInfo,
-                };
-            }
+                const lazyYTs = targetContent.querySelectorAll('.lazyYT');
+                lazyYTs.forEach(yt => {
+                    const videoId = yt.getAttribute('data-youtube-id');
+                    if (videoId) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                        iframe.setAttribute('allowfullscreen', 'true');
+                        iframe.setAttribute('frameborder', '0');
+                        yt.parentNode.replaceChild(iframe, yt);
+                    }
+                });
 
-            let targetContent = container.querySelector('.fr-view');
-            
-            if (!targetContent) {
-                targetContent = container.cloneNode(true);
-                targetContent.querySelectorAll(
-                    '.sidebar, .side-panel, nav, table.roadmap, .breadcrumb, .comments, .comment-section, .section-tags'
-                ).forEach(el => el.remove());
-            }
+                const allImages = targetContent.querySelectorAll('img');
+                allImages.forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && src.startsWith('/')) {
+                        img.src = `https://psnprofiles.com${src}`;
+                    }
+                });
 
-            // --- DOM CLEANUP SCRIPT ---
-            
-            // Fix 1: Swap tiny thumbnails for full-resolution images
-            const images = targetContent.querySelectorAll('img');
-            images.forEach(img => {
-                const parentLink = img.closest('a');
-                if (parentLink && parentLink.href && parentLink.href.match(/\.(jpeg|jpg|gif|png)$/i)) {
-                    img.src = parentLink.href; 
-                }
-                img.removeAttribute('width');
-                img.removeAttribute('height');
+                results[slug] = targetContent.innerHTML;
             });
 
-            // Fix 2: Nuke the "Loading..." YouTube fallback links
-            const links = targetContent.querySelectorAll('a');
-            links.forEach(a => {
-                if (a.innerText.trim().toLowerCase() === 'loading...') {
-                    a.remove();
-                }
-            });
+            return results;
+        });
 
-            // Fix 3: Convert lazy-loaded YouTube divs into playable iframes
-            const lazyYTs = targetContent.querySelectorAll('.lazyYT');
-            lazyYTs.forEach(yt => {
-                const videoId = yt.getAttribute('data-youtube-id');
-                if (videoId) {
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                    iframe.setAttribute('allowfullscreen', 'true');
-                    iframe.setAttribute('frameborder', '0');
-                    yt.parentNode.replaceChild(iframe, yt);
-                }
-            });
+        console.log(`Successfully scraped ${Object.keys(allTrophiesData).length} guides! Caching to RAM...`);
 
-            // Fix 4: Convert relative image paths (like PSNProfiles' inline trophy icons) into absolute URLs
-            const allImages = targetContent.querySelectorAll('img');
-            allImages.forEach(img => {
-                const src = img.getAttribute('src');
-                if (src && src.startsWith('/')) {
-                    img.src = `https://psnprofiles.com${src}`;
-                }
-            });
-
-            // --------------------------
-
-            return { html: targetContent.innerHTML, debug: debugInfo };
-
-        }, targetTrophy);
-
-        if (!result.debug.found) {
-            console.log('Scrape debug (no match):', result.debug);
-        } else {
-            console.log(`Matched: ${result.debug.matchedId}`);
+        // Save EVERY extracted guide into our Node.js RAM cache
+        for (const [slug, html] of Object.entries(allTrophiesData)) {
+            setCache(`${targetUrl}::${slug}`, html);
         }
 
-        setCache(cacheKey, result.html);
-        return result.html;
+        // Return the specific one the user originally asked for
+        const requestedSlug = slugify(targetTrophy);
+        let finalHtml = allTrophiesData[requestedSlug];
+
+        if (!finalHtml) {
+            const matchedKey = Object.keys(allTrophiesData).find(k => k.includes(requestedSlug) || requestedSlug.includes(k));
+            if (matchedKey) finalHtml = allTrophiesData[matchedKey];
+        }
+
+        if (!finalHtml) {
+            return '<p style="color: #ef4444;">Guide details coming soon or not found on page.</p>';
+        }
+
+        return finalHtml;
 
     } catch (error) {
         console.error('\nScraping failed:', error.message);
