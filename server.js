@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const psn = require('psn-api');
+const jwt = require('jsonwebtoken');
 const { scrapeTrophyGuide } = require('./utils/scraper');
 
 
@@ -102,7 +103,6 @@ app.get('/api/games/:id/achievements', verifyToken, async (req, res) => {
 })
 
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 
 //registration endpoint
@@ -239,9 +239,12 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                 const titleTrophiesResponse = await psn.getTitleTrophies(
                     authorization, targetGameRaw.npCommunicationId, "all", { npServiceName: targetGameRaw.npServiceName }
                 );
+            
+                const userTrophies = userTrophiesResponse.trophies || [];
+                const titleTrophies = titleTrophiesResponse.trophies || [];
 
-                const bulkOps = userTrophiesResponse.trophies.map(userTrophy => {
-                    const titleTrophy = titleTrophiesResponse.trophies.find(t => t.trophyId === userTrophy.trophyId);
+                const bulkOps = userTrophies.trophies.map(userTrophy => {
+                    const titleTrophy = titleTrophies.trophies.find(t => t.trophyId === userTrophy.trophyId);
                     if(!titleTrophy) return null;
 
                     return {
