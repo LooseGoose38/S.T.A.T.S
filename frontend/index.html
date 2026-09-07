@@ -66,32 +66,6 @@
                 color: #f87171;
             }
 
-            @media (max-width: 600px){
-                .top-nav{
-                    justify-content: center;
-                    flex-direction: column;
-                    gap: 10px;
-                    margin-bottom: 20px ;
-                }
-                .nav-actions{
-                    display: flex;
-                    gap: 10px;
-                    width: 100%;
-                }
-
-                .nav-btn{
-                    flex: 1;
-                }
-                .game-grid{
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 15px;
-                }
-
-                .game-title{
-                    font-size: 1em;
-                }
-            }
-
             h1{
                 text-align: center;
                 margin-bottom: 40px;
@@ -150,7 +124,33 @@
             .game-progress{
                 font-size: 0.9em;
                 color: #94a3b8;
+            }\
+            @media (max-width: 600px){
+                .top-nav{
+                    justify-content: center;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-bottom: 20px ;
+                }
+                .nav-actions{
+                    display: flex;
+                    gap: 10px;
+                    width: 100%;
+                }
+
+                .nav-btn{
+                    flex: 1;
+                }
+                .game-grid{
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                }
+
+                .game-title{
+                    font-size: 1em;
+                }
             }
+
         </style>
     </head>
 
