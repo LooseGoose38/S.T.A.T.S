@@ -276,9 +276,21 @@
         <script>
             const urlParams = new URLSearchParams(window.location.search);
             const gameId = urlParams.get('id');
+            const friendId = urlParams.get('friendId');
+            const friendName = urlParams.get('friendName');
+            const friendPsn = urlParams.get('psnId') || friendName;
 
             let globalAchievements = [];
             let isSortedLockedFirst = false;
+
+            if(friendId){
+                const backBtn = document.querySelector('.back-button');
+                backBtn.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(friendPsn)}`;
+                backBtn.innerHTML = `← Back to ${friendPsn}'s Library`;
+
+                const syncBtn = document.getElementById('sync-game-btn');
+                if (syncBtn) syncBtn.style.display = 'none';
+            }
 
             async function loadGameDetails() {
                 
@@ -290,7 +302,11 @@
 
                 try{
 
-                const gameRes = await fetch(`/api/games/${gameId}`, {
+                    // 🚨 NEW: Dynamically pick the right endpoint
+                    const gameEndpoint = friendId ? `/api/friends/${friendId}/games/${gameId}` : `/api/games/${gameId}`;
+                    const achEndpoint = friendId ? `/api/friends/${friendId}/games/${gameId}/achievements` : `/api/games/${gameId}/achievements`;
+
+                const gameRes = await fetch(gameEndpoint, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -304,7 +320,7 @@
                     <h1>${game.title}</h1>
                     <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
 
-                const achRes = await fetch(`/api/games/${gameId}/achievements`, {
+                const achRes = await fetch(achEndpoint, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -429,7 +445,7 @@
             detailsElement.dataset.loaded = 'true';
 
             const contentDiv = detailsElement.querySelector('.guide-content');
-            contentDiv.innerHTML = '<p style="color: #94a3b8;"><em>Grabing the Guide!</em></p>';
+            contentDiv.innerHTML = '<p style="color: #94a3b8;"><em>Grabbing the Guide!</em></p>';
 
             const token = localStorage.getItem('statsToken');
 
@@ -440,7 +456,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ trophyName: trophyName, gameId: gameId })
+                    body: JSON.stringify({ trophyName: trophyName, gameId: gameId, friendId: friendId })
                 });
 
                 if (!res.ok) throw new Error('Failed to fetch guide');

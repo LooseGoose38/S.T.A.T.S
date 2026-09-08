@@ -104,6 +104,7 @@ app.get('/api/games/:id/achievements', verifyToken, async (req, res) => {
 
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
+const { verify } = require('crypto');
 
 //registration endpoint
 app.post('/api/auth/register', async (req, res) => {
@@ -420,14 +421,23 @@ app.post('/api/sync/game', verifyToken, async (req, res) => {
 // Secure guide scraping route (WITH CACHING)
 app.post('/api/guide', verifyToken, async (req, res) => {
     try {
-        const { trophyName, gameId } = req.body;
+        const { trophyName, gameId, friendId } = req.body;
+        const targetUserId = friendId || req.user.userId;
+
         console.log(`Frontend requested guide for: ${trophyName} using Game ID: ${gameId}`);
+
+        if(friendId){
+            const currentUser = await User.findById(req.user.userId);
+            if(!currentUser.friends.some(id => id.toString() === friendId)){
+                return res.status(403).json({ error: 'Not friends with this user.'})
+            }
+        }
 
         // 1. Find the specific achievement in the database
         const achievement = await Achievement.findOne({ 
             achievementName: trophyName, 
             gameId: gameId,
-            userId: req.user.userId 
+            userId: targetUserId 
         });
 
         if (!achievement) {
@@ -441,15 +451,9 @@ app.post('/api/guide', verifyToken, async (req, res) => {
         }
 
         // 3. CACHE MISS: Find the URL and launch the bot
-        const game = await Game.findOne({ 
-            _id: achievement.gameId, 
-            userId: req.user.userId 
-        });
-        
-        console.log(`Database Lookup -> Game Found: ${!!game} | URL: ${game ? game.guideUrl : 'N/A'}`);
-
-        if (!game || !game.guideUrl) {
-            return res.json({ guide: '<p style="color: #ef4444;">No guide available for this game yet.</p>' });
+        const game = await Game.findOne({ _id: achievement.gameId, userId: targetUserId});
+        if(!game || !game.guideUrl) {
+            return res.json({guide: '<p style="color: #ef4444;">No guide available for this game yet.</p>' });
         }
 
         console.log(`Scraping guide for the first time...`);
@@ -519,7 +523,8 @@ app.get('/api/friends/:friendsId/games', verifyToken, async (req, res) => {
     try{
         //ensure user is actually friends list before showing data
         const currentUser = await User.findById(req.user.userId);
-        if(!currentUser.friends.includes(req.params.friendsId)) {
+
+        if(!currentUser.friends.some(id => id.toString() === req.params.friendsId)) {
             return res.status(403).json({ error: 'You are not friends with this user'});
         }
 
@@ -528,6 +533,38 @@ app.get('/api/friends/:friendsId/games', verifyToken, async (req, res) => {
         res.json(games);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch friend's games."});
+    }
+});
+
+app.get('/api/friends/:friendsId/games/:gameId', verifyToken, async (req, res) => {
+    try{
+        const currentUser = await User.findById(req.user.userId);
+        if(!currentUser.friends.some(id => id.toString() === req.params.friendsId)) {
+            return res.status(403).json({ error: 'You are not friends with this user'});
+        }
+
+        const game = await Game.findOne({ _id: req.params.gameId, userId: req.params.friendsId });
+        if(!game) return res.status(404).json({ error: 'Game not found.' });
+
+        res.json(game);
+    }catch (error) {
+        res.status(500).json({ error: "Failed to fetch friend's game details."})
+    }
+});
+
+app.get('/api/friends/:friendsId/games/:gameId/achievements', verifyToken, async (req, res) => {
+    try{
+        const currentUser = await User.findById(req.user.userId);
+        if(!currentUser.friends.some(id => id.toString() === req.params.friendsId)){
+            return res.status(403).json({ error: 'You are not friends with this user'});
+        }
+
+        const achievements = await Achievement.find({ gameId: req.params.gameId, userId: req.params.friendsId })
+        .sort({ isUnlocked: -1, unlockDate: -1 });
+
+        res.json(achievements);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch friend's achievements."})
     }
 });
 

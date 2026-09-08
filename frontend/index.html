@@ -455,7 +455,7 @@
                                 <strong>${friend.username}</strong>
                                 <div style="font-size: 0.8em; color: #94a3b8;">PSN: ${friend.psnId}</div>
                             </div>
-                            <button class="nav-btn sync-btn-style" style="padding: 6px 12px; font-size: 0.85em;" onclick="viewFriendLibrary('${friend._id}', '${friend.username}')">View Games</button>
+                            <button class="nav-btn sync-btn-style" style="padding: 6px 12px; font-size: 0.85em;" onclick="viewFriendLibrary('${friend._id}', '${friend.username}', '${friend.psnId}')">View Games</button>
                         </div>
                     `).join('');
                 } catch (error) {
@@ -471,6 +471,7 @@
                 try{
                     const token = localStorage.getItem('statsToken');
                     const res = await fetch('/api/friends/add', {
+                        method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                         body: JSON.stringify({ friendUsername: username })
                     });
@@ -487,11 +488,10 @@
                 }
             }
 
-            function viewFriendLibrary(friendId, friendName) {
-                alert(`friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}`);
+            function viewFriendLibrary(friendId, friendName, psnId) {
+                window.location.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(psnId)}`;
             }
 
-            
 
             loadGames();
         </script>
