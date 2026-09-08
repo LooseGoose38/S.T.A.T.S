@@ -6,6 +6,7 @@ const path = require('path');
 const psn = require('psn-api');
 const jwt = require('jsonwebtoken');
 const { scrapeTrophyGuide } = require('./utils/scraper');
+const { findGameGuideUrl } = require('./utils/guideFinder');
 
 
 //import blueprints
@@ -452,8 +453,21 @@ app.post('/api/guide', verifyToken, async (req, res) => {
 
         // 3. CACHE MISS: Find the URL and launch the bot
         const game = await Game.findOne({ _id: achievement.gameId, userId: targetUserId});
-        if(!game || !game.guideUrl) {
-            return res.json({guide: '<p style="color: #ef4444;">No guide available for this game yet.</p>' });
+
+        if(game && (!game.guideUrl || game.guideUrl === '')) {
+            console.log(`No guide URL found for ${game.title}. Launching cloud resolver...`);
+            
+            const foundUrl = await findGameGuideUrl(game.title);
+
+            if(foundUrl){
+                console.log(`Cloud bot successfully mapped: ${foundUrl}`);
+                game.guideUrl = foundUrl;
+                await game.save();
+            }
+        }
+
+        if(!game || !game.guideUrl){
+            return res.json({ guide: '<p style="color: #ef4444;">No guide available for this game yet.</p>' });
         }
 
         console.log(`Scraping guide for the first time...`);

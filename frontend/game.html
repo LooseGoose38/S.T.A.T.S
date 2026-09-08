@@ -128,7 +128,7 @@
                 border-radius: 8px;
                 overflow-x: hidden;
             }
-            .guide-content img,
+            
             .guide-content iframe,
             .guide-content video {
                 max-width: 100%;
@@ -137,6 +137,15 @@
                 margin-top: 10px;
                 display: block;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+
+            .guide-content img{
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                display: inline-block;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                margin: 5px 0;
             }
 
             .guide-content iframe {
@@ -187,22 +196,59 @@
             /* Force layout images to perfectly fill their half of the screen */
             .guide-content table.invisible img,
             .guide-content img.fr-fic {
-                width: 100%; 
+                max-width: 100%; 
+                width: auto !important;
                 height: auto;
                 border-radius: 8px;
                 display: block;
+                margin: 0 auto;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+            
+            .guide-content p,
+            .guide-content span,
+            .guide-content div,
+            .guide-content li,
+            .guide-content td,
+            .guide-content font {
+                color: #e2e8f0 !important;
+                line-height: 1.6;
+            }
+
+            .guide-content a,
+            .guide-content a * {
+                color: #60a5fa !important;
+                text-decoration: none;
+            }
+
+            .guide-content a:hover {
+                text-decoration: underline;
+            }
+
+            .guide-content ul,
+            .guide-content ol {
+                padding-left: 20px;
+                margin-top: 10px;
+            }
+
+            .guide-content li{
+                margin-bottom: 8px;
             }
 
             .guide-content img.input,
-            .guide-content p img,
-            .guide-content span img {
-                width: 16px;
-                height: 16px;
-                display: inline;
-                margin: 0 3px;
-                box-shadow: none;
-                vertical-align: middle;
+            .guide-content img.emoticon,
+            .guide-content img.typo-icon,
+            .guide-content img[src*="/trophies/"],
+            .guide-content img[src*="/emoticons/"],
+            .guide-content img[src*="/icons/"] {
+                width: auto !important;
+                max-width: 32px !important; 
+                height: auto !important;
+                display: inline-block !important; 
+                margin: 0 4px !important;
+                box-shadow: none !important; 
+                vertical-align: middle !important;
+                border-radius: 4px !important;
             }
 
             .reward-badge{
@@ -396,10 +442,10 @@
             });
 
             renderAchievements(sortedAchievements);
-        } else {
+            } else {
             sortBtn.innerHTML = 'Sort: Locked First';
             renderAchievements(globalAchievements);
-        }
+            }
     }
 
         async function triggerTargetedSync() {
