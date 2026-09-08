@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Friend's Library</title>
+        <style>
+            body{
+                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #ffffff;
+                margin: 0;
+                padding: 20px;
+                background-color: #0f172a;
+                min-height: 100vh;
+                overflow-x: hiddne;
+            }
+
+            body::before, body::after{
+                content: '';
+                position: fixed;
+                border-radius: 50%;
+                z-index: -1;
+            }
+            body::before{
+                top: 5%; left: 15%; width: 400px; height: 400px;
+                background: #3b82f6; filter: blur(60px); opacity: 0.3;
+            }
+            body::after{
+                bottom: 10%; right: 15%; width: 500px; height: 500px;
+                background: #8b5cf6; filter: blur(60px); opacity: 0.2;
+            }
+
+            .header-container {
+                max-width: 1200px;
+                margin: 0 auto 30px auto;
+            }
+
+            .back-button {
+                display: inline-block;
+                color: #94a3b8;
+                text-decoration: none;
+                font-size: 1.1em;
+                margin-bottom: 20px;
+                transition: color 0.2s;
+            }
+            .back-button:hover { color: #ffffff; }
+
+            h1 {
+                text-align: center;
+                margin-bottom: 40px;
+                font-weight: 600;
+                letter-spacing: 1px;
+            }
+
+            .platform-header {
+                max-width: 1200px;
+                margin: 40px auto 20px auto;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+                color: #0070d1;
+                text-shadow: 0 0 10px rgba(0, 113, 209, 0.5);
+            }
+
+            .game-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 30px;
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .game-card {
+                background: transparent;
+                text-align: left;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .game-card img {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+                object-fit: contain;
+                border-radius: 12px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .game-title {
+                font-size: 1.15em;
+                font-weight: bold;
+                margin: 15px 0 5px 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .game-progress {
+                font-size: 0.9em;
+                color: #94a3b8;
+            }
+
+            @media (max-width: 600px){
+                .game-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                }
+                .game-title {
+                    font-size: 1em;
+                    white-space: wrap;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            const token = localStorage.getItem('statsToken');
+            if(!token) window.location.href = 'login.html';
+        </script>
+
+        <div class="header-container">
+            <a href="index.html" class="back-button">← Back to Dashboard</a>
+            <h1 id="friend-profile-title">Friend's Library</h1>
+        </div>
+
+        <h2 class="platform-header">PlayStation Library</h2>
+        <div id="friend-grid" class="game-grid"></div>
+
+        <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const friendId = urlParams.get('id');
+            const friendUsername = urlParams.get('username') || 'Friend';
+
+            document.getElementById('friend-profile-title').innerText = `${friendUsername}'s Library`;
+
+            async function loadFriendLibrary() {
+                const grid = document.getElementById('friend-grid');
+                try {
+                    const token = localStorage.getItem('statsToken');
+                    const res = await fetch(`/api/friends/${friendId}/games`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!res.ok) throw new Error('Failed to load friend library');
+                    const games = await res.json();
+
+                    grid.innerHTML = '';
+                    if (games.length === 0) {
+                        grid.innerHTML = '<p style="color: #94a3b8; grid-column: 1 / -1; text-align: center;">This user has no games synced yet.</p>';
+                        return;
+                    }
+
+                    games.forEach(game => {
+                        const card = document.createElement('div');
+                        card.className = 'game-card';
+                        card.innerHTML = `
+                            <img src="${game.boxArtUrl}" alt="${game.title} Box Art">
+                            <div class="game-title">${game.title}</div>
+                            <div class="game-progress">
+                                ${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies (${game.progress.completionPercentage}%)
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                } catch (error) {
+                    console.error(error);
+                    grid.innerHTML = '<p style="color: #ef4444; grid-column: 1 / -1; text-align: center;">Error loading library or access denied.</p>';
+                }
+            }
+
+            if (friendId) loadFriendLibrary();
+        </script>
+    </body>
+</html>

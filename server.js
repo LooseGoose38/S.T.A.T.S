@@ -466,6 +466,67 @@ app.post('/api/guide', verifyToken, async (req, res) => {
     }
 });
 
+//--- Friends API Routes ---
+
+//add a friend by username
+app.post('/api/friends/add', verifyToken, async (req, res) => {
+    try{
+        const { friendUsername } = req.body;
+
+        // find the target user
+        const friend = await User.findOne({ username: { $regex: new RegExp(`^${friendUsername}$`, 'i') } });
+        if(!friend) return res.status(404).json({ message: 'USer not found.' });
+
+        //prevent adding yourself
+        if(friend._id.toString() === req.user.userId) {
+            return res.status(400).json({ message: "You can't add yourself as a friend"});
+        }
+
+        const currentUser = await User.findById(req.user.userId);
+
+        //check if already friends
+        if(currentUser.friends.includes(friend._id)){
+            return res.status(400).json({ message: 'You are already friends with this user'});
+        }
+
+        //add to array and save
+        currentUser.friends.push(friend._id);
+        await currentUser.save();
+
+        res.json({ message: `Successfully added ${friend.username}!`});
+    } catch (error) {
+        console.error('Add friend error:', error);
+        res.status(500).json({ error: 'Failed to add friend.' });
+    }
+});
+
+//get current user's friends list
+app.get('/api/friends', verifyToken, async (req, res) => {
+    try{
+        const user = await User.findById(req.user.userId).populate('friends', 'username psnId');
+        res.json(user.friends);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch friends.' });
+    }
+});
+
+//view a friend's game library
+app.get('/api/friends/:friendsId/games', verifyToken, async (req, res) => {
+    try{
+        //ensure user is actually friends list before showing data
+        const currentUser = await User.findById(req.user.userId);
+        if(!currentUser.friends.includes(req.params.friendsId)) {
+            return res.status(403).json({ error: 'You are not friends with this user'});
+        }
+
+        //fetch games matching the friend's ID
+        const games = await Game.find({ userId: req.params.friendsId }).sort({ lastPlayed: -1 });
+        res.json(games);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch friend's games."});
+    }
+});
+
 
 //start server
 app.listen(PORT, () => {

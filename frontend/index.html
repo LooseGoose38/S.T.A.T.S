@@ -211,6 +211,53 @@
                     background: rgba(255, 255, 255, 0.1);
                 }
 
+                /*--- Friends Modal Styles --- */
+                .modal-overlay {
+                    display: none;
+                    position: fixed;
+                    top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.6);
+                    backdrop-filter: blur(5px);
+                    -webkit-backdrop-filter: blur(5px);
+                    z-index: 1000;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                .modal-content {
+                    background: rgba(30, 41, 59, 0.85);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    padding: 25px;
+                    width: 90%;
+                    max-width: 400px;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                    position: relative;
+                }
+                
+                .close-btn {
+                    position: absolute;
+                    top: 15px; right: 20px;
+                    font-size: 1.5em;
+                    cursor: pointer;
+                    color: #94a3b8;
+                    transition: color 0.2s;
+                }
+
+                .close-btn:hover {
+                    color: white;
+                }
+
+                .friend-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 12px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
         </style>
     </head>
 
@@ -223,6 +270,9 @@
         <div class="top-nav">
             <span id="welcome-message"></span>
             <div class="nav-actions">
+                <button class="nav-btn sync-btn-style" onclick="toggleFriendsModal()" style="border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.2);">
+                    Friends
+                </button>
                 <button id="sync-btn" class="nav-btn sync-btn-style" onclick="syncPlaystation()">Sync PlayStation Library</button>
                 <button class="nav-btn logout-btn-style" onclick="logout()">Log Out</button>
             </div>
@@ -240,6 +290,22 @@
 
         <!-- <h2 class="platform-header xbox-header">Xbox Library</h2> -->
         <!-- <div id="xbox-grid" class="game-grid"></div> -->
+
+        <div id="friends-modal" class="modal-overlay">
+            <div class="modal-content">
+                <span class="close-btn" onclick="toggleFriendsModal()">x</span>
+                <h2 style="margin-top: 0;">Friends List</h2>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="friend-input" placeholder="Add by username..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.2); color: white; outline: none;">
+                    <button class="nav-btn sync-btn-style" onclick="addFriend()">Add</button>
+                </div>
+                
+                <div id="friends-list-container">
+                    <p style="color: #94a3b8; text-align: center;">Loading friends...</p>
+                </div>
+            </div>
+        </div>
 
         <script>
             //display the logged-in user's name
@@ -286,7 +352,6 @@
                 grid.appendChild(card);
                 });
             }
-
 
 
             async function loadGames(){
@@ -361,6 +426,72 @@
                     syncBtn.style.opacity = '1';
                 }
             }
+
+            function toggleFriendsModal() {
+                const modal = document.getElementById('friends-modal');
+                if(modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                } else {
+                    modal.style.display = 'flex';
+                    loadFriends();
+                }
+            }
+
+            async function loadFriends() {
+                const container = document.getElementById('friends-list-container');
+                try{
+                    const token = localStorage.getItem('statsToken');
+                    const res = await fetch('/api/friends', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const friends = await res.json();
+
+                    if(friends.length === 0){
+                        container.innerHTML = '<p style="color: #94a3b8; text-align: center;"> No friends added yet.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = friends.map(friend => `
+                        <div class="friend-item">
+                            <div>
+                                <strong>${friend.username}</strong>
+                                <div style="font-size: 0.8em; color: #94a3b8;">PSN: ${friend.psnId}</div>
+                            </div>
+                            <button class="nav-btn sync-btn-style" style="padding: 6px 12px; font-size: 0.85em;" onclick="viewFriendLibrary('${friend._id}', '${friend.username}')">View Games</button>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    container.innerHTML = '<p style="color: #ef4444;">Error loading friends.</p>';
+                }
+            }
+
+            async function addFriend() {
+                const input = document.getElementById('friend-input');
+                const username = input.value.trim();
+                if(!username) return;
+
+                try{
+                    const token = localStorage.getItem('statsToken');
+                    const res = await fetch('/api/friends/add', {
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+                        body: JSON.stringify({ friendUsername: username })
+                    });
+
+                    const data = await res.json();
+                    if(res.ok) {
+                        input.value = '';
+                        loadFriends();
+                    } else {
+                        alert(data.message || 'Error adding friend');
+                    }
+                } catch (error)  {
+                    alert('Server error.');
+                }
+            }
+
+            function viewFriendLibrary(friendId, friendName) {
+                alert(`friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}`);
+            }
+
+            
 
             loadGames();
         </script>
