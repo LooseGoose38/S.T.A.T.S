@@ -243,7 +243,7 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                 const userTrophies = userTrophiesResponse.trophies || [];
                 const titleTrophies = titleTrophiesResponse.trophies || [];
 
-                const bulkOps = userTrophies.trophies.map(userTrophy => {
+                const bulkOps = userTrophies.map(userTrophy => {
                     const titleTrophy = titleTrophies.trophies.find(t => t.trophyId === userTrophy.trophyId);
                     if(!titleTrophy) return null;
 
@@ -475,7 +475,7 @@ app.post('/api/friends/add', verifyToken, async (req, res) => {
 
         // find the target user
         const friend = await User.findOne({ username: { $regex: new RegExp(`^${friendUsername}$`, 'i') } });
-        if(!friend) return res.status(404).json({ message: 'USer not found.' });
+        if(!friend) return res.status(404).json({ message: 'User not found.' });
 
         //prevent adding yourself
         if(friend._id.toString() === req.user.userId) {
