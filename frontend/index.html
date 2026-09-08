@@ -5,6 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>My Game Library</title>
         <style>
+            @font-face {
+                font-family: 'Nedian';
+                src: url(fonts/Nedian\ Medium.otf) format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+            @font-face {
+                font-family: 'Playstation';
+                src: url(fonts/zrnic\ rg.otf) format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
             body{
                 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
@@ -67,10 +79,14 @@
             }
 
             h1{
+                font-family: 'Nedian', sans-serif;
                 text-align: center;
                 margin-bottom: 40px;
-                font-weight: 600;
-                letter-spacing: 1px;
+                font-size: 3em;
+                font-weight: normal;
+                letter-spacing: 3px;
+                text-shadow: 0 0 15px rgba(59, 139, 246, 0.6);
+                
             }
 
             .platform-header {
@@ -80,7 +96,12 @@
                 padding-bottom: 10px;
             }
 
-            .psn-header { color: #0070d1; text-shadow: 0 0 10px rgba(0, 113, 209, 0.5);}
+            .psn-header { 
+                font-family: 'Nedian';
+                color: #0070d1; 
+                text-shadow: 0 0 10px rgba(0, 113, 209, 0.5);
+            }
+
             .xbox-header { color: #107c10; text-shadow: 0 0 10px rgba(16, 124, 16, 0.5);}
 
             .game-grid{
@@ -150,6 +171,45 @@
                     font-size: 1em;
                 }
             }
+                
+                .search-container {
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                    margin-bottom: 30px;
+                    padding: 0 20px;
+                    box-sizing: border-box;
+                }
+
+                #search-bar {
+                    width: 100%;
+                    max-width: 600px;
+                    padding: 14px 20px;
+                    border-radius: 12px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+
+                    background: rgba(255, 255, 255, 0.05);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+
+                    color: white;
+                    font-size: 16px;
+                    outline: none;
+                    transition: border 0.3s, background 0.3s;
+                    appearance: none;
+                    -webkit-appearance: none;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                    box-sizing: border-box;
+                }
+
+                #search-bar::placeholder{
+                    color: #94a3b8;
+                }
+
+                #search-bar:focus {
+                    border: 1px solid #3b82f6;
+                    background: rgba(255, 255, 255, 0.1);
+                }
 
         </style>
     </head>
@@ -171,6 +231,10 @@
 
         <h1>S.T.A.T.S</h1>
 
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search your library..." oninput="filterGames()">
+        </div>
+
         <h2 class="platform-header psn-header">PlayStation Library</h2>
         <div id="psn-grid" class="game-grid"></div>
 
@@ -188,12 +252,19 @@
             function logout(){
                 localStorage.removeItem('statsToken');
                 localStorage.removeItem('statsUsername');
-                window.location.href = 'login.html'
+                window.location.href = 'login.html';
             }
             const API_URL = '/api/games';
+            let globalPsnGames = [];
 
             function renderGrid(gameArray, containerId){
                 const grid = document.getElementById(containerId);
+                grid.innerHTML = '';
+
+                if(gameArray.length === 0) {
+                    grid.innerHTML = '<p style="text-align:center; color: #94a3b8; grid-column: 1 / -1;">No games found.</p>';
+                    return;
+                }
 
                 gameArray.forEach(game => {
                     const card = document.createElement('div');
@@ -233,19 +304,27 @@
                     }
 
                     const games = await response.json();
-                    const psnGames = games.filter(game => game.ecosystem === 'PlayStation');
+
+                    globalPsnGames = games.filter(game => game.ecosystem === 'PlayStation');
                     // const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
 
-                    //clear the grid before rendering 
-                    document.getElementById('psn-grid').innerHTML = '';
-
-                    renderGrid(psnGames, 'psn-grid');
+                    renderGrid(globalPsnGames, 'psn-grid');
                     //renderGrid(xboxGames, 'xbox-grid');
 
                 } catch (error) { 
                     console.error('Error fetching games:', error);
                     document.getElementById('psn-grid').innerHTML = '<p style="text-align:center;">Error loading library. Please try logging in again.</p>';
                 }
+            }
+
+            function filterGames() {
+                const query = document.getElementById('search-bar').value.toLowerCase();
+
+                const filteredGames = globalPsnGames.filter(game => {
+                    return game.title.toLowerCase().includes(query);
+                });
+                
+                renderGrid(filteredGames, 'psn-grid');
             }
 
             async function syncPlaystation() {
