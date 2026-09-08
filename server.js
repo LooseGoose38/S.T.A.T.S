@@ -484,6 +484,10 @@ app.post('/api/friends/add', verifyToken, async (req, res) => {
 
         const currentUser = await User.findById(req.user.userId);
 
+        if(!currentUser.friends){
+            currentUser.friends = [];
+        }
+
         //check if already friends
         if(currentUser.friends.includes(friend._id)){
             return res.status(400).json({ message: 'You are already friends with this user'});
