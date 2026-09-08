@@ -1,4 +1,3 @@
-// --- utils/scraper.js ---
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
@@ -7,7 +6,7 @@ puppeteer.use(StealthPlugin());
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; 
 const guideCache = new Map(); 
 
-// Standardize names into slugs so we can cache every trophy flawlessly
+// 🚨 EXPORTED: Server.js needs this to match database names to scraped slugs!
 function slugify(str) {
     return str
         .toLowerCase()
@@ -51,7 +50,8 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     const cached = getFromCache(cacheKey);
     if (cached) {
         console.log(`RAM Cache hit for: ${targetTrophy} — skipping browser launch.`);
-        return cached;
+        // Return the HTML, but pass null for allGuides since we didn't scrape
+        return { requestedHtml: cached, allGuides: null };
     }
 
     console.log(`Cache miss. Launching stealth browser for: ${targetTrophy}...`);
@@ -72,7 +72,6 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
     
-    // Updated User Agent to Chrome 127 so Cloudflare is less suspicious
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36');
 
     await page.setRequestInterception(true);
@@ -102,10 +101,8 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
 
         console.log('Page loaded! Extracting EVERY trophy on the page at once...');
 
-        //Extract and map all trophies in one sweep
         const allTrophiesData = await page.evaluate(() => {
             const results = {};
-            
             const allAnchoredEls = Array.from(document.querySelectorAll('[id]')).filter(el => /^\d+-/.test(el.id));
 
             allAnchoredEls.forEach(container => {
@@ -162,12 +159,10 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
 
         console.log(`Successfully scraped ${Object.keys(allTrophiesData).length} guides! Caching to RAM...`);
 
-        // Save EVERY extracted guide into our Node.js RAM cache
         for (const [slug, html] of Object.entries(allTrophiesData)) {
             setCache(`${targetUrl}::${slug}`, html);
         }
 
-        // Return the specific one the user originally asked for
         const requestedSlug = slugify(targetTrophy);
         let finalHtml = allTrophiesData[requestedSlug];
 
@@ -177,18 +172,20 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
         }
 
         if (!finalHtml) {
-            return '<p style="color: #ef4444;">Guide details coming soon or not found on page.</p>';
+            finalHtml = '<p style="color: #ef4444;">Guide details coming soon or not found on page.</p>';
         }
 
-        return finalHtml;
+        // Return BOTH the specific HTML and the massive dictionary of all guides
+        return { requestedHtml: finalHtml, allGuides: allTrophiesData };
 
     } catch (error) {
         console.error('\nScraping failed:', error.message);
-        return '<p style="color: #ef4444;">Error loading guide.</p>';
+        return { requestedHtml: '<p style="color: #ef4444;">Error loading guide.</p>', allGuides: null };
     } finally {
         console.log('Closing browser...');
         await browser.close();
     }
 }
 
-module.exports = { scrapeTrophyGuide, clearGuideCache };
+// Added slugify so server.js can use it!
+module.exports = { scrapeTrophyGuide, clearGuideCache, slugify };

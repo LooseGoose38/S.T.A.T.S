@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const psn = require('psn-api');
 const jwt = require('jsonwebtoken');
-const { scrapeTrophyGuide } = require('./utils/scraper');
+const { scrapeTrophyGuide, slugify } = require('./utils/scraper');
 const { findGameGuideUrl } = require('./utils/guideFinder');
 
 
@@ -246,7 +246,7 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                 const titleTrophies = titleTrophiesResponse.trophies || [];
 
                 const bulkOps = userTrophies.map(userTrophy => {
-                    const titleTrophy = titleTrophies.trophies.find(t => t.trophyId === userTrophy.trophyId);
+                    const titleTrophy = titleTrophies.find(t => t.trophyId === userTrophy.trophyId);
                     if(!titleTrophy) return null;
 
                     return {
@@ -265,6 +265,7 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                                     iconUrl: titleTrophy.trophyIconUrl || '',
                                     isUnlocked: userTrophy.earned,
                                     unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
+                                    trophyGroupId: titleTrophy.trophyGroupId || 'default',
                                     weight: {
                                         type: 'Trophy',
                                         value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
@@ -392,6 +393,7 @@ app.post('/api/sync/game', verifyToken, async (req, res) => {
                             iconUrl: titleTrophy.trophyIconUrl || '',
                             isUnlocked: userTrophy.earned,
                             unlockDate: userTrophy.earned && userTrophy.earnedDateTime ? new Date(userTrophy.earnedDateTime) : null,
+                            trophyGroupId: titleTrophy.trophyGroupId || 'default',
                             weight: {
                                 type: 'Trophy',
                                 value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
@@ -471,16 +473,45 @@ app.post('/api/guide', verifyToken, async (req, res) => {
         }
 
         console.log(`Scraping guide for the first time...`);
-        const guideHtml = await scrapeTrophyGuide(game.guideUrl, trophyName);
+        const scrapeResult = await scrapeTrophyGuide(game.guideUrl, trophyName);
         
-        // 4. SAVE TO MONGODB: Cache the result so we never have to scrape this trophy again
-        achievement.guideHtml = guideHtml;
-        await achievement.save();
-        
-        return res.json({ guide: guideHtml });
+        res.json({ guide: scrapeResult.requestedHtml });
+
+        if (scrapeResult.allGuides) {
+            console.log('Background task: Bulk saving all guides directly to MongoDB...');
+
+            const allDbAchievements = await Achievement.find({ gameId: game._id, userId: targetUserId });
+
+            const bulkOps = allDbAchievements.map(ach => {
+                const achSlug = slugify(ach.achievementName);
+                let htmlToSave = scrapeResult.allGuides[achSlug];
+
+                if(!htmlToSave) {
+                    const matchedKey = Object.keys(scrapeResult.allGuides).find(k => k.includes(achSlug) || achSlug.includes(k));
+                    if(matchedKey) htmlToSave = scrapeResult.allGuides[matchedKey];
+                }
+
+                if(htmlToSave) {
+                    return {
+                        updateOne: {
+                            filter: { _id: ach._id },
+                            update: { $set: { guideHtml: htmlToSave } }
+                        }
+                    };
+                }
+                return null
+            }).filter(op => op !== null);
+
+            if(bulkOps.length > 0) {
+                await Achievement.bulkWrite(bulkOps);
+                console.log(`Successfully bulk-saved ${bulkOps.length} guides to MongoDB permanently!`);
+            }
+        }
     } catch (error) {
         console.error('Guide API error:', error);
-        return res.status(500).json({ error: 'Failed to fetch guide data.' });
+        if (!res.headersSent) {
+            return res.status(500).json({ error: 'Failed to fetch guide data.' });
+        }
     }
 });
 

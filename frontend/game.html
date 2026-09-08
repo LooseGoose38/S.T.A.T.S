@@ -375,7 +375,7 @@
                     if (!achRes.ok) throw new Error('Failed to load achievements');
                     
                     globalAchievements = await achRes.json();
-                    renderAchievements(globalAchievements);
+                    renderAchievements(sortTrophies(globalAchievements));
 
             } catch (error) {
                     console.error('Error loading game:', error);
@@ -383,14 +383,42 @@
                 }
         }
 
+        function sortTrophies(arrayToSort){
+            return [...arrayToSort].sort((a, b) => {
+                if(a.weight.value === 'Platinum') return -1;
+                if(b.weight.value === 'Platinum') return 1;
+
+                if(a.isUnlocked === b.isUnlocked) return 0;
+
+                if(isSortedLockedFirst){
+                    return a.isUnlocked ? 1 : -1;
+                } else {
+                    return a.isUnlocked ? -1 : 1;
+                }
+            });
+        }
+
         function renderAchievements(achievementsArray){
             const feedContainer = document.getElementById('achievement-feed');
             feedContainer.innerHTML = '';
 
-            achievementsArray.forEach(ach => {
-                const card = document.createElement('div');
-                
-                let cardClasses = 'achievement-card';
+            const baseGame = achievementsArray.filter(ach => !ach.trophyGroupId || ach.trophyGroupId === 'default');
+            const addOns = achievementsArray.filter (ach => ach.trophyGroupId && ach.trophyGroupId !== 'default');
+
+            if(baseGame.length > 0) {
+                feedContainer.innerHTML += '<h3 style="margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Base Game</h3>';
+                baseGame.forEach(ach => feedContainer.appendChild(createCard(ach)));
+            }
+
+            if(addOns.length > 0){
+                feedContainer.innerHTML += '<h3 style="margin-top: 30px; margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Add-ons</h3>';
+                addOns.forEach(ach => feedContainer.appendChild(createCard(ach)));
+            }
+        }
+
+        function createCard(ach){
+            const card = document.createElement('div');
+            let cardClasses = 'achievement-card';
 
                 if(!ach.isUnlocked){
                     cardClasses += ' locked-card';
@@ -423,29 +451,18 @@
                         <div class="guide-content"></div>
                     </details>
                 `;
-
-                    feedContainer.appendChild(card);
-            });
+                return card;
         }
 
         function toggleSort(){
             const sortBtn = document.getElementById('sort-btn');
             isSortedLockedFirst = !isSortedLockedFirst;
 
-            if(isSortedLockedFirst) {
-                sortBtn.innerHTML = 'Sort: Unlocked First';
+            sortBtn.innerHTML = isSortedLockedFirst ? 'Sort: Unlocked First' : 'Sort: Locked First';
+
+            const sorted = sortTrophies(globalAchievements);
+            renderAchievements(sorted);
             
-
-            const sortedAchievements = [...globalAchievements].sort((a, b) => {
-                if (a.isUnlocked === b.isUnlocked) return 0;
-                return a.isUnlocked ? 1 : -1;
-            });
-
-            renderAchievements(sortedAchievements);
-            } else {
-            sortBtn.innerHTML = 'Sort: Locked First';
-            renderAchievements(globalAchievements);
-            }
     }
 
         async function triggerTargetedSync() {

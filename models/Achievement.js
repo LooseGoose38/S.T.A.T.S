@@ -17,6 +17,10 @@ const achievementSchema = new mongoose.Schema({
     guideHtml: {
         type: String,
         default: ''
+    },
+    trophyGroupId: {
+        type: String,
+        default: 'default'
     }
 });
 
