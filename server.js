@@ -269,7 +269,8 @@ async function syncPlayStationData(targetUserId, targetPsnId){
                                     weight: {
                                         type: 'Trophy',
                                         value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
-                                        isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                                        isRare: (userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) ? Number(userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) < 10.0 : false,
+                                        earnedRate: (userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) ? Number(userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) : 100
                                     }
                                 }
                             },
@@ -397,7 +398,8 @@ app.post('/api/sync/game', verifyToken, async (req, res) => {
                             weight: {
                                 type: 'Trophy',
                                 value: titleTrophy.trophyType.charAt(0).toUpperCase() + titleTrophy.trophyType.slice(1),
-                                isRare: titleTrophy.trophyEarnedRate ? Number(titleTrophy.trophyEarnedRate) < 10.0 : false
+                                isRare: (userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) ? Number(userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) < 10.0 : false,
+                                earnedRate: (userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) ? Number(userTrophy.trophyEarnedRate || titleTrophy.trophyEarnedRate) : 100
                             }
                         }
                     },
@@ -610,6 +612,22 @@ app.get('/api/friends/:friendsId/games/:gameId/achievements', verifyToken, async
         res.json(achievements);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch friend's achievements."})
+    }
+});
+
+app.get('/api/achievements/rarest', verifyToken, async (req, res) => {
+    try {
+        const rarest = await Achievement.find({
+            userId: req.user.userId,
+            isUnlocked: true,
+            'weight.earnedRate': { $exists: true, $ne: null }
+        })
+        .sort({ 'weight.earnedRate' : 1 })
+        .limit(10);
+
+        res.json(rarest);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch rarest trophies' });
     }
 });
 

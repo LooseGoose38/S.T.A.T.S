@@ -7,12 +7,13 @@ const achievementSchema = new mongoose.Schema({
     achievementName: String,
     description: String,
     iconUrl: String,
-    isUnlocked: Boolean,
+    isUnlocked: { type: Boolean, default: false },
     unlockDate: Date,
     weight: {
         type: { type: String },
-        value: String,
-        isRare: Boolean
+        value: { type: String },
+        isRare: { type: Boolean, default: false },
+        earnedRate: { type: Number } //stores rarity percentage
     },
     guideHtml: {
         type: String,

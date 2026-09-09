@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="=#0f172a">
+        <meta name="theme-color" content="#0f172a">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <title>My Game Library</title>
@@ -24,11 +24,8 @@
                 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
                 margin: 0;
-                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));;
-                /* background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); */
-                /* background-attachment: fixed; keep background still */
-                /* min-height: 100vh; */
-                background-color: #0f172a;
+                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+                background-color: #17171a;
                 min-height: 100vh;
                 overflow-x: hidden;
                 overscroll-behavior-y: none;
@@ -39,17 +36,15 @@
                 position: fixed;
                 border-radius: 50%;
                 z-index: -1;
-                transform: translateZ(0);
-                will-change: transform;
             }
             body::before{
-                top: 5%; left: 15%; width: 400px; height: 400px;
-                background: #3b82f6; filter: blur(60px); opacity: 0.3;
+                top: -15%; left: -10%; width: 800px; height: 800px;
+                background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, rgba(226, 232, 240, 0) 70%);
             }
 
             body::after{
-                bottom: 10%; right: 15%; width: 500px; height: 500px;
-                background: #8b5cf6; filter: blur(60px); opacity: 0.2;
+                bottom: -15%; right: -10%; width: 800px; height: 800px;
+                background: radial-gradient(circle, rgba(134, 134, 128, 0.18) 0%, rgba(0, 195, 255, 0) 70%);
             }
 
 
@@ -64,32 +59,51 @@
                 flex-wrap: wrap;
             }
 
-            #welcome-message { color: #94a3b8; }
+            #welcome-message { color: #94a3b8; font-family: 'Playstation'; }
             .nav-btn {
                 padding: 8px 16px;
                 border-radius: 8px;
                 cursor: pointer;
-                transition: 0.3s;
                 font-weight: 600;
+                min-height: 40px;
+                transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+                border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+                border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
+            }
+
+            .nav-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             }
 
             .sync-btn-style{
-                background: rgba(59, 139, 246, 0.2);
-                border: 1px solid #3b82f6;
-                color: #3b82f6;
+                background: linear-gradient(135deg, rgba(59, 139, 246, 0.2) 0%, rgba(59, 139, 246, 0.05) 100%);
+                border: 1px solid rgba(59, 139, 246, 0.3);
+                color: #60a5fa;
             }
 
             .logout-btn-style{
-                background: rgba(248, 113, 113, 0.2);
-                border: 1px solid #f87171;
+                background: linear-gradient(135deg, rgba(248, 113, 113, 0.2) 0%, rgba(248, 113, 113, 0.05) 100%);
+                border: 1px solid rgba(248, 113, 113, 0.3);
                 color: #f87171;
+            }
+            
+            .friends-btn-style {
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.05) 100%);
+                border: 1px solid rgba(168, 85, 247, 0.3);
+                color: #c084fc;
             }
 
             h1{
                 font-family: 'Nedian', sans-serif;
                 text-align: center;
                 margin-bottom: 40px;
-                font-size: 3em;
+                font-size: 3.8em;
                 font-weight: normal;
                 letter-spacing: 3px;
                 text-shadow: 0 0 15px rgba(59, 139, 246, 0.6);
@@ -105,6 +119,7 @@
 
             .psn-header { 
                 font-family: 'Nedian';
+                font-size: 1.8em;
                 color: #0070d1; 
                 text-shadow: 0 0 10px rgba(0, 113, 209, 0.5);
             }
@@ -259,6 +274,26 @@
                     white-space: nowrap;
                 }
 
+                .achievement-card{
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    border-radius: 16px;
+                    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255, 0.02) 100%);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-top: 1px solid rgba(255, 255, 255, 0.3);
+                    border-left: 1px solid rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                    transition: transform 0.3s;
+                }
+                
+                .achievement-card:hover {
+                    transform: translateY(-3px);
+                }
+
                 @media (max-width: 600px){
                 .top-nav{
                     justify-content: center;
@@ -297,7 +332,7 @@
         <div class="top-nav">
             <span id="welcome-message"></span>
             <div class="nav-actions">
-                <button class="nav-btn sync-btn-style" onclick="toggleFriendsModal()" style="border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.2);">
+                <button class="nav-btn friends-btn-style" onclick="toggleFriendsModal()">
                     Friends
                 </button>
                 <button id="sync-btn" class="nav-btn sync-btn-style" onclick="syncPlaystation()">Sync PlayStation Library</button>
@@ -315,6 +350,19 @@
         <h2 class="platform-header psn-header">PlayStation Library</h2>
         <div id="psn-grid" class="game-grid"></div>
 
+        <div id="show-more-container" style="text-align: center; margin-top: 30px; display: none;">
+            <button id="toggle-games-btn" class="nav-btn sync-btn-style" onclick="toggleGames()" style="padding: 12px 24px; border-radius: 20px;">
+                ▼ Show All Games
+            </button>
+        </div>
+
+        <h2 class="platform-header" style="color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); margin-top: 70px; font-family: 'Nedian'; font-size: 1.8em;">Hall of Fame</h2>
+        <p style="text-align: center; color: #94a3b8; margin-bottom: 30px; font-family: 'Playstation';">Top 10 rarest unlocked trophies</p>
+
+        <div id="rarity-feed" style="max-width: 800px; margin: 0 auto 60px auto; display: flex; flex-direction: column; gap: 15px;">
+            <p style="color: #94a3b8; text-align: center;">Loading your rarest trophies...</p>
+        </div>
+
         <!-- <h2 class="platform-header xbox-header">Xbox Library</h2> -->
         <!-- <div id="xbox-grid" class="game-grid"></div> -->
 
@@ -325,7 +373,7 @@
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <input type="text" id="friend-input" placeholder="Add by username..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.2); color: white; outline: none;">
-                    <button class="nav-btn sync-btn-style" onclick="addFriend()">Add</button>
+                    <button class="nav-btn friends-btn-style" onclick="addFriend()">Add</button>
                 </div>
                 
                 <div id="friends-list-container">
@@ -349,17 +397,35 @@
             }
             const API_URL = '/api/games';
             let globalPsnGames = [];
+            let isShowingAllGames = false;
+            const GAMES_TO_SHOW = 10;
 
             function renderGrid(gameArray, containerId){
                 const grid = document.getElementById(containerId);
+                const showMoreContainer = document.getElementById('show-more-container');
+                const toggleBtn = document.getElementById('toggle-games-btn');
                 grid.innerHTML = '';
 
                 if(gameArray.length === 0) {
                     grid.innerHTML = '<p style="text-align:center; color: #94a3b8; grid-column: 1 / -1;">No games found.</p>';
+                    showMoreContainer.style.display = 'none';
                     return;
                 }
 
-                gameArray.forEach(game => {
+                let gamesToRender = gameArray;
+                if(gameArray.length > GAMES_TO_SHOW){
+                    showMoreContainer.style.display = 'block';
+                    if(!isShowingAllGames) {
+                        gamesToRender = gameArray.slice(0, GAMES_TO_SHOW);
+                        toggleBtn.innerText = '▼ Show All Games';
+                    } else {
+                        toggleBtn.innerText = '▲ Show Less';
+                    }
+                } else {
+                    showMoreContainer.style.display = 'none';
+                }
+
+                gamesToRender.forEach(game => {
                     const card = document.createElement('div');
                     card.className = 'game-card';
 
@@ -380,6 +446,38 @@
                 });
             }
 
+            function toggleGames() {
+                isShowingAllGames = !isShowingAllGames;
+                filterGames();
+            }
+
+            async function loadRarestTrophies() {
+                const container = document.getElementById('rarity-feed');
+                try{
+                    const token = localStorage.getItem('statsToken');
+                    const res = await fetch('/api/achievements/rarest', { headers: { 'Authorization': `Bearer ${token}` } });
+                    const trophies = await res.json();
+
+                    if(trophies.length === 0){
+                        container.innerHTML = '<p style="color: #94a3b8; text-align: center;">Sync your games to see your rarest trophies!</p>';
+                        return;
+                    }
+
+                    container.innerHTML = trophies.map((ach, index) => `
+                    <div class="achievement-card">
+                            <div style="font-size: 1.8em; font-weight: bold; color: #fbbf24; margin-right: 20px; min-width: 40px; text-align: center;">#${index + 1}</div>
+                            <img src="${ach.iconUrl}" style="width: 64px; height: 64px; border-radius: 10px; margin-right: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);">
+                            <div style="flex: 1; min-width: 0;">
+                                    <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ach.achievementName}</div>
+                                    <div style="color: #e2e8f0; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ach.gameTitle}</div>
+                                    <div style="font-size: 0.9em; font-weight: bold; color: #fbbf24; margin-top: 5px;">🔥 ${ach.weight.earnedRate}% of players</div>
+                                </div>
+                            </div>
+                            `).join('');
+                } catch (error) {
+                    container.innerHTML = '<p style="color: #ef4444; text-align: center;">Error loading rarest trophies.</p>';
+                }
+            }
 
             async function loadGames(){
                 try{
@@ -519,8 +617,8 @@
                 window.location.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(psnId)}`;
             }
 
-
             loadGames();
+            loadRarestTrophies();
         </script>
     </body>
 </html>

@@ -18,11 +18,10 @@
                 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
                 margin: 0;
-                padding: 20px;
-                background-color: #0f172a;
+                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+                background-color: #17171a;
                 min-height: 100vh;
                 overflow-x: hidden;
-                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));;
                 overscroll-behavior-y: none;
                 -webkit-text-size-adjust: 100%;
             }
@@ -32,16 +31,14 @@
                 position: fixed;
                 border-radius: 50%;
                 z-index: -1;
-                transform: translateZ(0);
-                will-change: transform;
             }
             body::before{
-                top: 5%; left: 15%; width: 400px; height: 400px;
-                background: #3b82f6; filter: blur(60px); opacity: 0.3;
+                top: -15%; left: -10%; width: 800px; height: 800px;
+                background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, rgba(226, 232, 240, 0) 70%);
             }
             body::after{
-                bottom: 10%; right: 15%; width: 500px; height: 500px;
-                background: #8b5cf6; filter: blur(60px); opacity: 0.2;
+                bottom: -15%; right: -10%; width: 800px; height: 800px;
+                background: radial-gradient(circle, rgba(134, 134, 128, 0.18) 0%, rgba(0, 195, 255, 0) 70%);
             }
 
             .header-container {
