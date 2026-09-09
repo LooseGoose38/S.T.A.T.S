@@ -153,31 +153,6 @@
                 font-size: 0.9em;
                 color: #94a3b8;
             }
-            @media (max-width: 600px){
-                .top-nav{
-                    justify-content: center;
-                    flex-direction: column;
-                    gap: 10px;
-                    margin-bottom: 20px ;
-                }
-                .nav-actions{
-                    display: flex;
-                    gap: 10px;
-                    width: 100%;
-                }
-
-                .nav-btn{
-                    flex: 1;
-                }
-                .game-grid{
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 15px;
-                }
-
-                .game-title{
-                    font-size: 1em;
-                }
-            }
                 
                 .search-container {
                     display: flex;
@@ -263,7 +238,52 @@
                     align-items: center;
                     padding: 12px;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    gap: 12px;
                 }
+                /*keeps modal buttons at their natural size */
+                .friend-item .nav-actions{
+                    flex: 0 0 auto;
+                    white-space: nowrap;
+                    width: auto;
+                }
+                /* prevents long emails/names from breaking the layout*/
+                .friend-item > div {
+                    min-width: 0;
+                    overflow: hidden;
+                }
+                
+                .friend-item strong {
+                    display: block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                @media (max-width: 600px){
+                .top-nav{
+                    justify-content: center;
+                    flex-direction: column;
+                    gap: 10px;
+                    margin-bottom: 20px ;
+                }
+                .nav-actions{
+                    display: flex;
+                    gap: 10px;
+                    width: 100%;
+                }
+
+                .nav-actions .nav-btn{
+                    flex: 1;
+                }
+                .game-grid{
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                }
+
+                .game-title{
+                    font-size: 1em;
+                }
+            }
 
         </style>
     </head>
