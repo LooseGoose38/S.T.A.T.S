@@ -22,6 +22,9 @@
                 background-color: #0f172a;
                 min-height: 100vh;
                 overflow-x: hidden;
+                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));;
+                overscroll-behavior-y: none;
+                -webkit-text-size-adjust: 100%;
             }
 
             body::before, body::after{
@@ -29,6 +32,8 @@
                 position: fixed;
                 border-radius: 50%;
                 z-index: -1;
+                transform: translateZ(0);
+                will-change: transform;
             }
             body::before{
                 top: 5%; left: 15%; width: 400px; height: 400px;

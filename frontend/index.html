@@ -24,19 +24,23 @@
                 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
                 margin: 0;
-                padding: 20px;
+                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));;
                 /* background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); */
                 /* background-attachment: fixed; keep background still */
                 /* min-height: 100vh; */
                 background-color: #0f172a;
                 min-height: 100vh;
                 overflow-x: hidden;
+                overscroll-behavior-y: none;
+                -webkit-text-size-adjust: 100%;
             }
             body::before, body::after{
                 content: '';
                 position: fixed;
                 border-radius: 50%;
                 z-index: -1;
+                transform: translateZ(0);
+                will-change: transform;
             }
             body::before{
                 top: 5%; left: 15%; width: 400px; height: 400px;
