@@ -280,6 +280,20 @@
                 text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
             }
 
+            .collectible-checkbox {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                accent-color: #0ea5e9;
+            }
+
+            .row-completed td {
+                opacity: 0.4;
+                text-decoration: line-through;
+                background-color: rgba(14, 165, 233, 0.05);
+                transition: all 0.3s ease;
+            }
+
             @media (max-width: 600px){
                 .card-top-row{
                     flex-direction: column;
@@ -535,11 +549,58 @@
                 
                 // Inject the scraped HTML (and screenshots) directly into the dropdown
                 contentDiv.innerHTML = data.guide;
+
+                injectCheckboxes(contentDiv, gameId, trophyName);
             } catch (error) {
                 contentDiv.innerHTML = '<p style="color: #ef4444;">Error connecting to the scraper.</p>';
                 // Reset the loaded state so they can try clicking it again
                 delete detailsElement.dataset.loaded; 
             }
+        }
+
+        function injectCheckboxes(container, gameId, trophyName){
+            const tables = container.querySelectorAll('table:not(.invisible)');
+
+            tables.forEach((table, tableIndex) => {
+                const rows = table.querySelectorAll('tr');
+
+                rows.forEach((row, rowIndex) => {
+                    if(row.querySelector('th')){
+                        const th = document.createElement('th');
+                        th.innerText = '✓'
+                        th.style.textAlign = 'center';
+                        th.style.width = '40px';
+                        row.insertBefore(th, row.firstChild);
+                    }
+                    else if (row.querySelector('td')) {
+                        const td = document.createElement('td');
+                        td.style.textAlign = 'center';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'collectible-checkbox';
+
+                        const storageKey = `stats_chk_${gameId}_${trophyName.replace(/\s+/g, '')}_${tableIndex}_${rowIndex}`;
+
+                        if(localStorage.getItem(storageKey) === 'true') {
+                            checkbox.checked = true;
+                            row.classList.add('row-completed');
+                        }
+
+                        checkbox.addEventListener('change', (e) => {
+                            localStorage.setItem(storageKey, e.target.checked);
+                            if(e.target.checked){
+                                row.classList.add('row-completed');
+                            } else {
+                                row.classList.remove('row-completed');
+                            }
+                        });
+
+                        td.appendChild(checkbox);
+                        row.insertBefore(td, row.firstChild);
+                    }
+                });
+            });
         }
 
         if(gameId) loadGameDetails();
