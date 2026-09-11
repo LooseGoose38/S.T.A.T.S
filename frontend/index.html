@@ -8,18 +8,22 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <title>My Game Library</title>
         <style>
+            /* registers custom local font 'Nedian' from project local files */
             @font-face {
                 font-family: 'Nedian';
                 src: url(fonts/Nedian\ Medium.otf) format('opentype');
                 font-weight: normal;
                 font-style: normal;
             }
+            /* registers custom local font 'Playstation' from project local files */
+
             @font-face {
                 font-family: 'Playstation';
                 src: url(fonts/zrnic\ rg.otf) format('opentype');
                 font-weight: normal;
                 font-style: normal;
             }
+            /* Global body styling: sets default font, colors, dark backgrounf, and prevents horizontal overflow */
             body{
                 font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 color: #ffffff;
@@ -31,23 +35,25 @@
                 overscroll-behavior-y: none;
                 -webkit-text-size-adjust: 100%;
             }
+            /* Shared rules for background glow effect */
             body::before, body::after{
                 content: '';
                 position: fixed;
                 border-radius: 50%;
                 z-index: -1;
             }
+            /* Top-left ambient radial gradient glow */
             body::before{
                 top: -15%; left: -10%; width: 800px; height: 800px;
                 background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, rgba(226, 232, 240, 0) 70%);
             }
-
+            /* Bottom-right ambient radial gradient glow */
             body::after{
                 bottom: -15%; right: -10%; width: 800px; height: 800px;
                 background: radial-gradient(circle, rgba(134, 134, 128, 0.18) 0%, rgba(0, 195, 255, 0) 70%);
             }
 
-
+            /* container for the top navigation bar items */
             .top-nav{
                 display: flex;
                 justify-content: flex-end;
@@ -58,8 +64,13 @@
                 gap: 20px;
                 flex-wrap: wrap;
             }
+            /* # indicates ID, for unique elements that apeear once. styles the logged-in username text in the nav bar */
+            #welcome-message { 
+                color: #94a3b8; 
+                font-family: 'Playstation'; 
+            }
 
-            #welcome-message { color: #94a3b8; font-family: 'Playstation'; }
+            /* Base styling for all interactive top navigation buttons */
             .nav-btn {
                 padding: 8px 16px;
                 border-radius: 8px;
@@ -76,29 +87,34 @@
                 border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
             }
 
+            /* Hover effect: lifts the button slightly and deepens the drop shadow */
             .nav-btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             }
 
+            /* Color them for the Playstation sync button */
             .sync-btn-style{
                 background: linear-gradient(135deg, rgba(59, 139, 246, 0.2) 0%, rgba(59, 139, 246, 0.05) 100%);
                 border: 1px solid rgba(59, 139, 246, 0.3);
                 color: #60a5fa;
             }
 
+            /* Color theme for the logout button */
             .logout-btn-style{
                 background: linear-gradient(135deg, rgba(248, 113, 113, 0.2) 0%, rgba(248, 113, 113, 0.05) 100%);
                 border: 1px solid rgba(248, 113, 113, 0.3);
                 color: #f87171;
             }
             
+            /* Color theme for the freinds button */
             .friends-btn-style {
                 background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.05) 100%);
                 border: 1px solid rgba(168, 85, 247, 0.3);
                 color: #c084fc;
             }
 
+            /* Main S.T.A.T.S title typography layout */
             h1{
                 font-family: 'Nedian', sans-serif;
                 text-align: center;
@@ -110,6 +126,7 @@
                 
             }
 
+            /* Section divider header layout for libraries */
             .platform-header {
                 max-width: 1200px;
                 margin: 40px auto 20px auto;
@@ -117,6 +134,7 @@
                 padding-bottom: 10px;
             }
 
+            /* Specific styling for Playstation section titles */
             .psn-header { 
                 font-family: 'Nedian';
                 font-size: 1.8em;
@@ -126,6 +144,7 @@
 
             .xbox-header { color: #107c10; text-shadow: 0 0 10px rgba(16, 124, 16, 0.5);}
 
+            /* CSS Grid container for game items */
             .game-grid{
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -133,6 +152,8 @@
                 max-width: 1200px;
                 margin: 0 auto;
             }
+
+            /* individual game card layout wrapper */
             .game-card{
                 background: transparent;
                 text-align: left;
@@ -141,6 +162,7 @@
                 flex-direction: column;
             }
 
+            /* game box art image styling */
             .game-card img{
                 width: 100%;
                 height: auto;
@@ -151,11 +173,13 @@
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
             }
 
+            /* Hover effect: lifts the game cover art on mouseover */
             .game-card:hover img{ 
                 transform:translateY(-8px);
                 box-shadow: 0 15px 30px rgba(0, 0, 0, 0.7);
             }
 
+            /* Game title text styling inside library cards */
             .game-title{
                 font-size: 1.15em;
                 font-weight: bold;
@@ -164,21 +188,26 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
+
+            /* Trophy unlock progress counter text styling */
             .game-progress{
                 font-size: 0.9em;
                 color: #94a3b8;
             }
-                
-                .search-container {
+            
+            /* Centering wrapper for the search bar */
+            .search-container {
                     display: flex;
                     justify-content: center;
                     width: 100%;
                     margin-bottom: 30px;
                     padding: 0 20px;
                     box-sizing: border-box;
-                }
+                    
+            }
 
-                #search-bar {
+            /* Glassmorphism styling for the seach input bar */
+            #search-bar {
                     width: 100%;
                     max-width: 600px;
                     padding: 14px 20px;
@@ -197,104 +226,146 @@
                     -webkit-appearance: none;
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                     box-sizing: border-box;
-                }
+                    
+            }
 
-                #search-bar::placeholder{
+            /* Muted placeholder text color */
+            #search-bar::placeholder{
                     color: #94a3b8;
-                }
+            }
 
-                #search-bar:focus {
+            /* Active focus state highlights border blue */
+            #search-bar:focus {
                     border: 1px solid #3b82f6;
                     background: rgba(255, 255, 255, 0.1);
-                }
+            }
 
-                /*--- Friends Modal Styles --- */
-                .modal-overlay {
-                    display: none;
-                    position: fixed;
-                    top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0, 0, 0, 0.6);
-                    backdrop-filter: blur(5px);
-                    -webkit-backdrop-filter: blur(5px);
-                    z-index: 1000;
-                    justify-content: center;
-                    align-items: center;
-                }
+            /*--- Friends Modal Styles --- */
+            /* Full-screen dark translucnet backdrop overlay for modal popups */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            }
 
-                .modal-content {
-                    background: rgba(30, 41, 59, 0.85);
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    padding: 25px;
-                    width: 90%;
-                    max-width: 400px;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-                    position: relative;
-                }
-                
-                .close-btn {
-                    position: absolute;
-                    top: 15px; right: 20px;
-                    font-size: 1.5em;
-                    cursor: pointer;
-                    color: #94a3b8;
-                    transition: color 0.2s;
-                }
+            /* Glassmorphism modal pop box container */
+            .modal-content {
+                background: rgba(30, 41, 59, 0.85);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 25px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                position: relative;
+            }
+            
+            /* Close 'X' button inside modal */
+            .close-btn {
+                position: absolute;
+                top: 15px; right: 20px;
+                font-size: 1.5em;
+                cursor: pointer;
+                color: #94a3b8;
+                transition: color 0.2s;
+            }
 
-                .close-btn:hover {
-                    color: white;
-                }
+            .close-btn:hover {
+                color: white;
+            }
 
-                .friend-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                    gap: 12px;
-                }
-                /*keeps modal buttons at their natural size */
-                .friend-item .nav-actions{
-                    flex: 0 0 auto;
-                    white-space: nowrap;
-                    width: auto;
-                }
-                /* prevents long emails/names from breaking the layout*/
-                .friend-item > div {
-                    min-width: 0;
-                    overflow: hidden;
-                }
-                
-                .friend-item strong {
-                    display: block;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
+            /* Row styling for each entry in the friends list */
+            .friend-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                gap: 12px;
+            }
 
-                .achievement-card{
-                    padding: 15px;
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    border-radius: 16px;
-                    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255, 0.02) 100%);
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-top: 1px solid rgba(255, 255, 255, 0.3);
-                    border-left: 1px solid rgba(255, 255, 255, 0.3);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-                    transition: transform 0.3s;
-                }
-                
-                .achievement-card:hover {
-                    transform: translateY(-3px);
-                }
+            /*keeps modal buttons at their natural size */
+            .friend-item .nav-actions{
+                flex: 0 0 auto;
+                white-space: nowrap;
+                width: auto;
+            }
 
-                @media (max-width: 600px){
+            /* prevents long emails/names from breaking the layout*/
+            .friend-item > div {
+                min-width: 0;
+                overflow: hidden;
+            }
+            
+            .friend-item strong {
+                display: block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            /* Card container styling for Hall of Fame rarest trophies feed */
+            .achievement-card{
+                padding: 15px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                border-radius: 16px;
+                background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255, 0.02) 100%);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: 1px solid rgba(255, 255, 255, 0.3);
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                transition: transform 0.3s;
+            }
+            
+            .achievement-card:hover {
+                transform: translateY(-3px);
+            }
+            
+            /* --- SCROLLING TICKER --- */
+            /* Scrolling status ticker bar */
+            .system-ticker {
+                width: 100vw;
+                background: #000;
+                border-bottom: 1px solid rgba(96, 165, 250, 0.3);
+                color: #60a5fa;
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 0.85em;
+                padding: 4px 0;
+                overflow: hidden;
+                white-space: nowrap;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+                margin-left: -20px; /* Pulls it out of your body padding */
+                margin-top: -20px;
+                margin-bottom: 20px;
+            }
+            
+            /* Marquee inner track holding text */
+            .ticker-text {
+                display: inline-block;
+                padding-left: 100%;
+                animation: marquee 20s linear infinite;
+            }
+
+            /* Keyframes animation loop scrolling text from right to left */
+            @keyframes marquee {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-100%); }
+            }
+            
+            /* Styling rules for mobile phone sceens */
+            @media (max-width: 600px){
                 .top-nav{
                     justify-content: center;
                     flex-direction: column;
@@ -324,11 +395,20 @@
     </head>
 
     <body>
+        <!-- Inline script that checks localStorage instantly on load to protect unauthenticated users -->
         <script>
             const token = localStorage.getItem('statsToken');
             if(!token) window.location.href = 'login.html';
         </script>
 
+        <!-- Scrolling status ticker bar -->
+        <div class="system-ticker">
+            <div class="ticker-text">
+                SYSTEM ONLINE // S.T.A.T.S DASHBOARD V1.0 // PLAYSTATION NETWORK SYNCED // WELCOME BACK // NO NEW ALERTS
+            </div>
+        </div>
+
+        <!-- Top navigation bar holding user identity and quick action buttons -->
         <div class="top-nav">
             <span id="welcome-message"></span>
             <div class="nav-actions">
@@ -341,24 +421,31 @@
         </div>
         
 
+        <!-- Main page header logo -->
         <h1>S.T.A.T.S</h1>
 
+        <!-- Search bar layout container -->
         <div class="search-container">
             <input type="text" id="search-bar" placeholder="Search your library..." oninput="filterGames()">
         </div>
 
+        <!-- Playstation section category header -->
         <h2 class="platform-header psn-header">PlayStation Library</h2>
+        <!-- Target grid container where JavaScript populates fetched games -->
         <div id="psn-grid" class="game-grid"></div>
 
+        <!-- Show more / pagination control toggle container -->
         <div id="show-more-container" style="text-align: center; margin-top: 30px; display: none;">
             <button id="toggle-games-btn" class="nav-btn sync-btn-style" onclick="toggleGames()" style="padding: 12px 24px; border-radius: 20px;">
                 ▼ Show All Games
             </button>
         </div>
 
+        <!-- Hall of Fame section headers -->
         <h2 class="platform-header" style="color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); margin-top: 70px; font-family: 'Nedian'; font-size: 1.8em;">Hall of Fame</h2>
         <p style="text-align: center; color: #94a3b8; margin-bottom: 30px; font-family: 'Playstation';">Top 10 rarest unlocked trophies</p>
 
+        <!-- Feed container for top rarest trophies -->
         <div id="rarity-feed" style="max-width: 800px; margin: 0 auto 60px auto; display: flex; flex-direction: column; gap: 15px;">
             <p style="color: #94a3b8; text-align: center;">Loading your rarest trophies...</p>
         </div>
@@ -366,16 +453,19 @@
         <!-- <h2 class="platform-header xbox-header">Xbox Library</h2> -->
         <!-- <div id="xbox-grid" class="game-grid"></div> -->
 
+        <!-- Friends list popup modal window -->
         <div id="friends-modal" class="modal-overlay">
             <div class="modal-content">
                 <span class="close-btn" onclick="toggleFriendsModal()">x</span>
                 <h2 style="margin-top: 0;">Friends List</h2>
 
+                <!-- Input area to add a friend username -->
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <input type="text" id="friend-input" placeholder="Add by username..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.2); color: white; outline: none;">
                     <button class="nav-btn friends-btn-style" onclick="addFriend()">Add</button>
                 </div>
                 
+                <!-- Container list populated dynamically with added friends -->
                 <div id="friends-list-container">
                     <p style="color: #94a3b8; text-align: center;">Loading friends...</p>
                 </div>
@@ -383,35 +473,40 @@
         </div>
 
         <script>
-            //display the logged-in user's name
+            // Retrieves and displays the logged-in user's stored name from local browser memory
             const savedUsername = localStorage.getItem('statsUsername');
             if(savedUsername){
                 document.getElementById('welcome-message').innerText = `Logged in as: ${savedUsername}`;
             }
 
-            //logout function
+            // Clears session tokens and redirects back to the login screen
             function logout(){
                 localStorage.removeItem('statsToken');
                 localStorage.removeItem('statsUsername');
                 window.location.href = 'login.html';
             }
+
+            // Global configuration and application state variables
             const API_URL = '/api/games';
             let globalPsnGames = [];
             let isShowingAllGames = false;
             const GAMES_TO_SHOW = 10;
 
+            //core fucntion for generating game cards dynamically into the HTML grid
             function renderGrid(gameArray, containerId){
                 const grid = document.getElementById(containerId);
                 const showMoreContainer = document.getElementById('show-more-container');
                 const toggleBtn = document.getElementById('toggle-games-btn');
                 grid.innerHTML = '';
 
+                // Handles empty libray states
                 if(gameArray.length === 0) {
                     grid.innerHTML = '<p style="text-align:center; color: #94a3b8; grid-column: 1 / -1;">No games found.</p>';
                     showMoreContainer.style.display = 'none';
                     return;
                 }
 
+                //Handles limiting game counts if the array exceeds 10 items
                 let gamesToRender = gameArray;
                 if(gameArray.length > GAMES_TO_SHOW){
                     showMoreContainer.style.display = 'block';
@@ -425,16 +520,19 @@
                     showMoreContainer.style.display = 'none';
                 }
 
+                // Loops through each game object to build its DOM card element
                 gamesToRender.forEach(game => {
-                    const card = document.createElement('div');
+                    const card = document.createElement('div'); //creates a new div element in memory
                     card.className = 'game-card';
 
+                    // Adds click handler to navigate to detailed view for that game ID
                     card.onclick = () => {
                         window.location.href = `game.html?id=${game._id}`;
                     };
 
                     const unlockWord = game.ecosystem ===  'PlayStation' ? 'Trophies' : 'Achievements';
 
+                    // Template literal building HTML structure for each game card
                     card.innerHTML = `
                     <img src="${game.boxArtUrl}" alt="${game.title} Box Art">
                     <div class="game-title">${game.title}</div>
@@ -446,11 +544,13 @@
                 });
             }
 
+            //Toggles state flag between showing top 10 or the full library list
             function toggleGames() {
                 isShowingAllGames = !isShowingAllGames;
                 filterGames();
             }
 
+            // Fetches the top 10 rarest unlocked trophies across the user's collection
             async function loadRarestTrophies() {
                 const container = document.getElementById('rarity-feed');
                 try{
@@ -463,6 +563,7 @@
                         return;
                     }
 
+                    // Maps trophy data into ranked list cards
                     container.innerHTML = trophies.map((ach, index) => `
                     <div class="achievement-card">
                             <div style="font-size: 1.8em; font-weight: bold; color: #fbbf24; margin-right: 20px; min-width: 40px; text-align: center;">#${index + 1}</div>
@@ -479,6 +580,7 @@
                 }
             }
 
+            // Async network call to retrieve the user's game library from MongoDB database
             async function loadGames(){
                 try{
                     const token = localStorage.getItem('statsToken');
@@ -495,6 +597,7 @@
 
                     const games = await response.json();
 
+                    //Filters games down to PlayStation ecosystem only
                     globalPsnGames = games.filter(game => game.ecosystem === 'PlayStation');
                     // const xboxGames = games.filter(game => game.ecosystem === 'Xbox');
 
@@ -507,6 +610,7 @@
                 }
             }
 
+            // Live search filter function checking text input against game titles
             function filterGames() {
                 const query = document.getElementById('search-bar').value.toLowerCase();
 
@@ -517,6 +621,7 @@
                 renderGrid(filteredGames, 'psn-grid');
             }
 
+            // Triggers backend sync process to pull fresh trophy updates from PSN servers
             async function syncPlaystation() {
                 const syncBtn = document.getElementById('sync-btn');
                 const token = localStorage.getItem('statsToken');
@@ -552,6 +657,7 @@
                 }
             }
 
+            // Toggles visibility state of the friends list modal overlay window
             function toggleFriendsModal() {
                 const modal = document.getElementById('friends-modal');
                 if(modal.style.display === 'flex') {
@@ -562,6 +668,7 @@
                 }
             }
 
+            // Fetches currnet user's added friends list from the server
             async function loadFriends() {
                 const container = document.getElementById('friends-list-container');
                 try{
@@ -588,6 +695,7 @@
                 }
             }
 
+            // Sends a request to the backend API to link a new friend by username
             async function addFriend() {
                 const input = document.getElementById('friend-input');
                 const username = input.value.trim();
@@ -613,10 +721,12 @@
                 }
             }
 
+            // Redirects to view a selected friend's library view
             function viewFriendLibrary(friendId, friendName, psnId) {
                 window.location.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(psnId)}`;
             }
 
+            //Initail execution calls when the page finishes loading
             loadGames();
             loadRarestTrophies();
         </script>

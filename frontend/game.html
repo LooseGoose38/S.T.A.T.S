@@ -1,37 +1,53 @@
 <!DOCTYPE html>
+<!-- the <html> tag is the root of the document. "en" sets the language to English of screen readers and search engines -->
 <html lang="en">
     <head>
+        <!-- Tells the browser to use the UTF-8 character encoding, which supports almost all characters -->
         <meta charset="UTF-8">
+        <!-- tells browser to set the width of page to width of device screen and starts it at a 1:1 zoom level-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Sets the color of the browser's top address on mobile devices -->
         <meta name="theme-color" content="=#0f172a">
+        <!-- allows the website to be saved to an Iphone home screen and run like a native app -->
         <meta name="apple-mobile-web-app-capable" content="yes">
+        <!-- makes the status bar at the top screen translucent -->
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <!-- The text that appears in the browser tab -->
         <title>Game Details</title>
         <style>
+            /* Global reset and base style */
             body{
-                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                color: #ffffff;
-                margin: 0;
+                /* Sets default font */
+                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                color: #ffffff; /* Default text color is white */
+                margin: 0; /* Removes default browser margin*/
+
+                /* ensures content isn't hidden under phone notches or bottom swipe bars */
                 padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-                background-color: #17171a;
-                min-height: 100vh;
-                overflow-x: hidden;
-                overscroll-behavior-y: none;
-                -webkit-text-size-adjust: 100%;
+
+                background-color: #17171a; /*Deep gunmetal base background color*/
+                min-height: 100vh; /*Ensures the body is always at least 100% of the Viewport Height (vh)*/
+                overflow-x: hidden; /*Prevents user from accidentally scrolling sidways*/
+                overscroll-behavior-y: none; /*Stops bounce effect when scrolling pass the top*/
+                -webkit-text-size-adjust: 100%; /* Prevents IOS from auto zooming in text when device orentation changes*/
             }
 
+            /* Ambient background glows */
+            /* ::before and ::after allows us to create "fake" HTML elements entirely out of CSS to use for decorations */
             body::before, body::after{
-                content: '';
-                position: fixed;
-                border-radius: 50%;
-                z-index: -1;
+                content: ''; /*Required for psuedo-elements to render */
+                position: fixed; /* Locks them to the screen so they dont scroll with the page*/
+                border-radius: 50%; /* Makes the square elemetnt pefectly round*/
+                z-index: -1; /* Pushes them behind all other content on the page*/
             }
 
+            /* Top-left ambient light*/
             body::before {
             top: -15%; left: -10%; width: 800px; height: 800px;
             background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, rgba(226, 232, 240, 0) 70%);
             }
 
+            /* Bottom-right ambient light*/
             body::after {
             bottom: -15%; right: -10%; width: 800px; height: 800px;
             background: radial-gradient(circle, rgba(134, 134, 128, 0.18) 0%, rgba(0, 195, 255, 0) 70%);
@@ -39,62 +55,68 @@
 
             /* header layout */
             .header-container{
-                max-width: 800px;
-                margin: 0 auto 30px auto;
+                max-width: 800px; /*Prevents the header from stretching to wide on massive desktop monitors*/
+                margin: 0 auto 30px auto; /* Top 0, Left/right auto (centers it), Bottom 30px*/
                 text-align: center;
             }
 
             .back-button{
-                display:inline-block;
-                margin-bottom:20px;
+                display:inline-block; /* Allows margins to work on an inline element like a link*/
+                margin-bottom:20px; 
                 color: #94a3b8;
-                text-decoration: none;
+                text-decoration: none; /* Removes the default blue underline from the link*/
                 font-size: 1.1em;
-                transition: color 0.2s;
+                transition: color 0.2s; /* Creates a smooth 0.2-second animation when hovering*/
             }
 
             .back-button:hover{ color: #ffffff; }
 
+            /* Game Box Art Styling */
             .header-container img {
                 width: 100%;
-                max-width: 500px;
-                border-radius: 12px;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+                max-width: 500px; /* Caps the image size so it doesn't take up the whole screen*/
+                border-radius: 12px; /* Rounds the coners of the images*/
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Adds a drop shawdow (X-offset, Y-offset, Blur, color)*/
                 margin-bottom: 15px;
             }
 
+            /* Butoon components */
             .sync-btn {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.1); /* 10% transparent white background*/
+                border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
                 color: white;
-                padding: 8px 16px;
+                padding: 8px 16px; /* 8px top/bottom, 16px left/right */
                 border-radius: 8px;
-                cursor: pointer;
+                cursor: pointer; /*Changes the mouse arrow to a point hand*/
                 font-weight: bold;
                 margin-top: 10px;
-                transition:  0.2s;
+                transition:  0.2s; /*Smooth background change on hover*/
             }
 
             .sync-btn:hover{
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.2); /*Brightens background on hover*/
             }
 
+            /* ACHIEVEMENT FEED & CARDS */
             #achievement-feed{
                 max-width: 800px;
                 margin: 0 auto;
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
+                display: flex; /*Flexbox is a modern layout tool*/
+                flex-direction: column; /* Stacks the cards vertically instad of horizontally*/
+                gap: 15px; /* Puts exactly 15px of space between every card*/
             }
             .achievement-card{
                 padding: 15px; 
                 display: flex; 
                 flex-direction: column;
                 border-radius: 16px;
+                /*Fades the background from top-left to bottom-right*/
                 background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+                /*Blurs everything rendered behind this div*/
                 backdrop-filter: blur(16px); 
                 -webkit-backdrop-filter: blur(16px);
                 border: 1px solid rgba(255, 255, 255, 0.1);
+                /* Adds slightly brighter borders to the top and left to stimulate light hitting glass*/
                 border-top: 1px solid rgba(255, 255, 255, 0.3); 
                 border-left: 1px solid rgba(255, 255, 255, 0.3);
                 box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -102,15 +124,16 @@
 
             .card-top-row{
                 display: flex;
-                align-items: flex-start;
+                align-items: flex-start; /* Aligns items to the top rather than stretching them*/
                 gap: 20px;
                 width: 100%;
             }
 
+            /* Logic for unearned trophies */
             .locked-card .card-top-row,
             .locked-card summary{ 
-                opacity: 0.5; 
-                filter: grayscale(100%) 
+                opacity: 0.5; /* Makes the whole row semi-transparent*/
+                filter: grayscale(100%) /*Removes all color from the image and text*/
             }
 
             .achievement-card img {
@@ -120,11 +143,12 @@
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             }
 
-            .achievement-info { flex-grow: 1; }
+            .achievement-info { flex-grow: 1; } /* Tells this container to take up all remaining horizantal space*/
             .achievement-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
             .achievement-desc { color: #e2e8f0; font-size: 0.9em; margin-bottom: 5px;}
             .achievement-meta { font-size: 0.85em; color: #94a3b8}
 
+            /* SCRAPED GUIDE CONTENT FORMATTING */
             .guide-dropdown {
                 margin-top: 12px;
             }
@@ -132,14 +156,15 @@
             .guide-content {
                 margin-top: 10px;
                 padding: 15px;
-                background: rgba(0, 0, 0, 0.2);
+                background: rgba(0, 0, 0, 0.2); /* Creates a dark inset well for the guide text*/
                 border-radius: 8px;
-                overflow-x: hidden;
+                overflow-x: hidden; /* Prevents scraped content from breaking the screen width*/
             }
             
+            /* Enforces responsivness on scraped media */
             .guide-content iframe,
             .guide-content video {
-                max-width: 100%;
+                max-width: 100%; /* Prevents images/videos from bleeding off the screen*/
                 height: auto;
                 border-radius: 8px;
                 margin-top: 10px;
@@ -157,14 +182,14 @@
             }
 
             .guide-content iframe {
-                aspect-ratio: 16 / 9;
+                aspect-ratio: 16 / 9; /* Forces YouTube embeds to maintain proper widescreen formatting*/
                 width: 100%;
             }
 
-            /* --- NORMAL DATA TABLES (Coordinates, etc.) --- */
+            /* Formats scraped HTML tables */
             .guide-content table:not(.invisible) {
                 width: 100%;
-                border-collapse: collapse;
+                border-collapse: collapse; /* Merges double bordes into single solid lines*/
                 margin: 15px 0;
                 background: rgba(0, 0, 0, 0.2);
                 border-radius: 8px;
@@ -186,7 +211,7 @@
                 color: #ffffff;
             }
 
-            /* --- INVISIBLE LAYOUT TABLES (Side-by-side images) --- */
+            /* Formats invisible layout tables*/
             .guide-content table.invisible {
                 width: 100%;
                 border-collapse: collapse;
@@ -209,7 +234,7 @@
                 height: auto;
                 border-radius: 8px;
                 display: block;
-                margin: 0 auto;
+                margin: 0 auto; /* Centers the image*/
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
             }
             
@@ -219,13 +244,13 @@
             .guide-content li,
             .guide-content td,
             .guide-content font {
-                color: #e2e8f0 !important;
-                line-height: 1.6;
+                color: #e2e8f0 ;
+                line-height: 1.6; /* Adds breathing room between lines of text*/
             }
 
             .guide-content a,
             .guide-content a * {
-                color: #60a5fa !important;
+                color: #60a5fa !important; /* Forces all links to be bright blue*/
                 text-decoration: none;
             }
 
@@ -243,6 +268,7 @@
                 margin-bottom: 8px;
             }
 
+            /* Targets tiny icon images and prevents them from stretching*/
             .guide-content img.input,
             .guide-content img.emoticon,
             .guide-content img.typo-icon,
@@ -259,11 +285,17 @@
                 border-radius: 4px !important;
             }
 
+            /* BADGES & CHECKBOXES */
             .reward-badge{
-                background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255, 255, 0.2);
-                padding: 6px 14px; border-radius: 20px; font-size: 0.9em; font-weight: bold;
+                background: rgba(255, 255, 255, 0.1); 
+                border: 1px solid rgba(255,255, 255, 0.2);
+                padding: 6px 14px; 
+                border-radius: 20px; /* Pill Shape*/
+                font-size: 0.9em; 
+                font-weight: bold;
             }
             
+            /* Special glowing styling applied only to Platinum trophies */
             .platinum-glow {
                 background: linear-gradient(135deg, rgba(138, 180, 248, 0.2) 0%, rgba(138, 180, 248, 0.05) 100%);
                 border: 1px solid rgba(138, 180, 248, 0.5);
@@ -284,9 +316,10 @@
                 width: 20px;
                 height: 20px;
                 cursor: pointer;
-                accent-color: #0ea5e9;
+                accent-color: #0ea5e9; /* Changes the default blue checkmark color*/
             }
 
+            /* Syling for when a user checks a box in a guide table */
             .row-completed td {
                 opacity: 0.4;
                 text-decoration: line-through;
@@ -294,12 +327,13 @@
                 transition: all 0.3s ease;
             }
 
+            /* ROADMAP STYLING */
             .roadmap-summary {
                 background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129, 0.05) 100%);
                 border: 1px solid rgba(16, 185, 129, 0.3);
                 border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
                 border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
-                color: #34d399;
+                color: #34d399; /*Text*/
                 padding: 14px;
                 border-radius: 8px;
                 font-size: 1.1em;
@@ -310,9 +344,10 @@
                 -webkit-backdrop-filter: blur(12px);
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 transition: transform 0.2s, box-shadow 0.2s;
-                list-style: none;
+                list-style: none; /*Hides the native HTML disclosure triangle*/
             }
 
+            /* Safari specific fix to hide the disclosure triangle */
             .roadmap-summary::-webkit-details-marker {
                 display: none;
             }
@@ -322,6 +357,7 @@
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             }
 
+            /* Reformats the PSNProfiles Bootstrap grid into a flexbox grid*/
             .guide-content .roadmap-trophies {
                 display: flex;
                 flex-wrap: wrap;
@@ -329,6 +365,7 @@
                 margin: 20px 0;
             }
 
+            /* Selects any elements inside the roadmap whose class contains "col-"*/
             .guide-content .roadmap-trophies [class*="col-"] {
                 background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255,255,255,0.01) 100%);
                 border: 1px solid rgba(255, 255, 255, 0.1);
@@ -336,33 +373,36 @@
                 border-left: 1px solid rgba(255, 255, 255, 0.2);
                 border-radius: 12px;
                 padding: 15px;
-                width: calc(50% - 10px);
-                flex-grow: 1;
-                box-sizing: border-box;
+                width: calc(50% - 10px); /* Forces a 2-column layout*/
+                flex-grow: 1; /*Tells odd-numbered items to stretch and fill empty space*/
+                box-sizing: border-box; /*Includes padding in the width calculation*/
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             }
 
+            /* MOBILE RESPONSIVENESS */
+            /* only applies when the screen is 600px wide or smaller */
             @media (max-width: 600px){
                 .card-top-row{
-                    flex-direction: column;
+                    flex-direction: column; /*Stacks the icon, text, and badge vertically*/
                     gap: 12px;
                 }
 
                 .reward-badge{
-                    align-self: flex-start;
+                    align-self: flex-start; /*Moves the badge to the left edge*/
                 }
 
                 .guide-content table:not(.invisible){
-                    display: block;
-                    overflow-x: auto;
+                    display: block; /*Changes table behavior*/
+                    overflow-x: auto; /*Allows wide tables to be scrolled left/right with a finger*/
                 }
 
                 .guide-content table:not(.invisible) img {
                     max-width: 100%;
-                    min-width: 120px;
+                    min-width: 120px; /* Prevents images from getting crushed too small*/
                     height: auto;
                 }
 
+                /* Shrinks the ambient background glows */
                 body::before, body::after{
                     width: 250px;
                     height: 250px;
