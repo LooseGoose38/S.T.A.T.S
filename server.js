@@ -449,8 +449,8 @@ app.post('/api/guide', verifyToken, async (req, res) => {
             return res.status(404).json({ error: 'Achievement not found.' });
         }
 
-        // 2. CHECK CACHE: If we already scraped this, serve it instantly!
-        if (achievement.guideHtml && achievement.guideHtml !== '') {
+        // 2. CHECK CACHE: If we already scraped this, serve it instantly! (Unless forced)
+        if (!req.body.forceScrape && achievement.guideHtml && achievement.guideHtml !== '') {
             console.log(`⚡ Serving cached guide from MongoDB for: ${trophyName}`);
             return res.json({ guide: achievement.guideHtml });
         }
@@ -475,12 +475,18 @@ app.post('/api/guide', verifyToken, async (req, res) => {
         }
 
         console.log(`Scraping guide for the first time...`);
-        const scrapeResult = await scrapeTrophyGuide(game.guideUrl, trophyName);
+        const scrapeResult = await scrapeTrophyGuide(game.guideUrl, trophyName, req.body.forceScrape);
         
         res.json({ guide: scrapeResult.requestedHtml });
 
         if (scrapeResult.allGuides) {
             console.log('Background task: Bulk saving all guides directly to MongoDB...');
+
+            if(scrapeResult.allGuides['roadmap']) {
+                game.roadmapHtml = scrapeResult.allGuides['roadmap'];
+                await game.save();
+                console.log('Successfully saved Roadmap to the Game database')
+            }
 
             const allDbAchievements = await Achievement.find({ gameId: game._id, userId: targetUserId });
 

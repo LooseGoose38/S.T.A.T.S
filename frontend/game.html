@@ -294,6 +294,54 @@
                 transition: all 0.3s ease;
             }
 
+            .roadmap-summary {
+                background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129, 0.05) 100%);
+                border: 1px solid rgba(16, 185, 129, 0.3);
+                border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+                border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
+                color: #34d399;
+                padding: 14px;
+                border-radius: 8px;
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+                text-align: center;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                transition: transform 0.2s, box-shadow 0.2s;
+                list-style: none;
+            }
+
+            .roadmap-summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .roadmap-summary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            }
+
+            .guide-content .roadmap-trophies {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                margin: 20px 0;
+            }
+
+            .guide-content .roadmap-trophies [class*="col-"] {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255,255,255,0.01) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                border-left: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 12px;
+                padding: 15px;
+                width: calc(50% - 10px);
+                flex-grow: 1;
+                box-sizing: border-box;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
             @media (max-width: 600px){
                 .card-top-row{
                     flex-direction: column;
@@ -336,8 +384,14 @@
                 <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
                 Sync Trophies
             </button>
+            
+            <button id="rescrape-btn" class="sync-btn" onclick="rescrapeGuides()">
+                Force Rescrape
+            </button>
         </div>
     </div>
+
+    <div id="roadmap-container" style="max-width: 800px; margin: 0 auto 20px auto;"></div>
 
         <div id="achievement-feed"></div>
 
@@ -387,6 +441,25 @@
                     <img src ="${game.boxArtUrl}" alt="${game.title}">
                     <h1>${game.title}</h1>
                     <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
+
+                    // Inject the Roadmap if it exists in the database
+                const roadmapContainer = document.getElementById('roadmap-container');
+                if (game.roadmapHtml) {
+                    roadmapContainer.innerHTML = `
+                        <details class="guide-dropdown" style="width: 100%;">
+                            <summary class="roadmap-summary">
+                                🗺️ View Trophy Roadmap & Walkthrough
+                            </summary>
+                            <div class="guide-content">
+                                ${game.roadmapHtml}
+                            </div>
+                        </details>
+                    `;
+                    injectCheckboxes(roadmapContainer, gameId, 'roadmap');
+                    } else {
+                    // Clear it out if no roadmap exists yet
+                    roadmapContainer.innerHTML = '';
+                }
 
                 const achRes = await fetch(achEndpoint, {
                         headers: {
@@ -602,6 +675,72 @@
                 });
             });
         }
+
+        async function rescrapeGuides() {
+            const btn = document.getElementById('rescrape-btn');
+            btn.innerHTML = 'Scraping...';
+            btn.disabled = true;
+
+            const token = localStorage.getItem('statsToken');
+
+            const targetTrophy = globalAchievements[0].achievementName;
+
+            try{
+                const res = await fetch('/api/guide', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ trophyName: targetTrophy, gameId: gameId, forceScrape: true })
+                });
+
+                if(res.ok) {
+                    btn.innerHTML = 'Done!';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    btn.innerHTML = 'Failed';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                btn.innerHTML = 'Error';
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('#roadmap-container a');
+            if(link){
+                const linkText = link.innerText.trim();
+                const allTrophyNames = document.querySelectorAll('.achievement-name');
+
+                for( let nameNode of allTrophyNames){
+                    if(nameNode.innerText.trim() === linkText) {
+                        e.preventDefault();
+
+                        const card = nameNode.closest('.achievement-card');
+
+                        //scroll smoothly to the trophy
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        card.style.transition = 'box-shadow 0.3s ease';
+                        card.style.boxShadow = '0 0 30px #0ea5e9, inset 0 0 15px rgba(14, 165, 233, 0.3)';
+                        setTimeout(() => {
+                            card.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.3)';
+                        }, 2000);
+
+                        const dropdown = card.querySelector('details');
+                        if(dropdown && !dropdown.open) {
+                            dropdown.open = true;
+                            if(!dropdown.dataset.loaded){
+                                fetchGuide(dropdown, linkText, gameId);
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+        });
 
         if(gameId) loadGameDetails();
         </script>

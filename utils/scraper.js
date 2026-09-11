@@ -44,11 +44,11 @@ function clearGuideCache() {
     guideCache.clear();
 }
 
-async function scrapeTrophyGuide(targetUrl, targetTrophy) {
+async function scrapeTrophyGuide(targetUrl, targetTrophy, forceScrape = falses) {
     const cacheKey = getCacheKey(targetUrl, targetTrophy);
 
     const cached = getFromCache(cacheKey);
-    if (cached) {
+    if (cached && !forceScrape) {
         console.log(`RAM Cache hit for: ${targetTrophy} — skipping browser launch.`);
         // Return the HTML, but pass null for allGuides since we didn't scrape
         return { requestedHtml: cached, allGuides: null };
@@ -103,17 +103,23 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
 
         const allTrophiesData = await page.evaluate(() => {
             const results = {};
-            const allAnchoredEls = Array.from(document.querySelectorAll('[id]')).filter(el => /^\d+-/.test(el.id));
 
-            allAnchoredEls.forEach(container => {
-                const slug = container.id.replace(/^\d+-/, '');
+            function cleanAndFormatHtml(container, isRoadmap = false){
+                let targetContent;
 
-                let targetContent = container.querySelector('.fr-view');
-                if (!targetContent) {
+                if (isRoadmap) {
+                    // For the roadmap, we want the ENTIRE box, not just the first text block!
                     targetContent = container.cloneNode(true);
-                    targetContent.querySelectorAll(
-                        '.sidebar, .side-panel, nav, table.roadmap, .breadcrumb, .comments, .comment-section, .section-tags'
-                    ).forEach(el => el.remove());
+                } else {
+                    targetContent = container.querySelector('.fr-view');
+                    if(!targetContent){
+                        targetContent = container.cloneNode(true);
+                        targetContent.querySelectorAll(
+                            '.sidebar, .side-panel, nav, table.roadmap, .breadcrumb, .comments, .comment-section, .section-tags'
+                        ).forEach(el => el.remove());
+                    } else {
+                        targetContent = targetContent.cloneNode(true);
+                    }
                 }
 
                 const images = targetContent.querySelectorAll('img');
@@ -124,6 +130,10 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
                     }
                     img.removeAttribute('width');
                     img.removeAttribute('height');
+                    const src = img.getAttribute('src');
+                    if(src && src.startsWith('/')) {
+                        img.src = `https://psnprofiles.com${src}`;
+                    }
                 });
 
                 const links = targetContent.querySelectorAll('a');
@@ -142,16 +152,22 @@ async function scrapeTrophyGuide(targetUrl, targetTrophy) {
                         yt.parentNode.replaceChild(iframe, yt);
                     }
                 });
+                
+                return targetContent.innerHTML;
+            }
 
-                const allImages = targetContent.querySelectorAll('img');
-                allImages.forEach(img => {
-                    const src = img.getAttribute('src');
-                    if (src && src.startsWith('/')) {
-                        img.src = `https://psnprofiles.com${src}`;
-                    }
-                });
+            // Pass 'true' to the helper function so it grabs all stages!
+            const roadmapEl = document.querySelector('#roadmapSteps') || document.querySelector('.roadmap');
+            if(roadmapEl){
+                results['roadmap'] = cleanAndFormatHtml(roadmapEl, true);
+            }
 
-                results[slug] = targetContent.innerHTML;
+            const allAnchoredEls = Array.from(document.querySelectorAll('[id]')).filter(el => /^\d+-/.test(el.id));
+            
+            allAnchoredEls.forEach(container => {
+                const slug = container.id.replace(/^\d+-/, '');
+                if(slug === 'roadmap') return;
+                results[slug] = cleanAndFormatHtml(container);
             });
 
             return results;
