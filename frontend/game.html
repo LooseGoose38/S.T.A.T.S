@@ -1,521 +1,574 @@
-<!DOCTYPE html>
+<!doctype html>
 <!-- the <html> tag is the root of the document. "en" sets the language to English of screen readers and search engines -->
 <html lang="en">
-    <head>
-        <!-- Tells the browser to use the UTF-8 character encoding, which supports almost all characters -->
-        <meta charset="UTF-8">
-        <!-- tells browser to set the width of page to width of device screen and starts it at a 1:1 zoom level-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Sets the color of the browser's top address on mobile devices -->
-        <meta name="theme-color" content="=#0f172a">
-        <!-- allows the website to be saved to an Iphone home screen and run like a native app -->
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <!-- makes the status bar at the top screen translucent -->
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <!-- The text that appears in the browser tab -->
-        <title>Game Details</title>
-        <style>
-            /* Global reset and base style */
-            body{
-                /* Sets default font */
-                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                color: #ffffff; /* Default text color is white */
-                margin: 0; /* Removes default browser margin*/
+  <head>
+    <!-- Tells the browser to use the UTF-8 character encoding, which supports almost all characters -->
+    <meta charset="UTF-8" />
+    <!-- tells browser to set the width of page to width of device screen and starts it at a 1:1 zoom level-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Sets the color of the browser's top address on mobile devices -->
+    <meta name="theme-color" content="=#0f172a" />
+    <!-- allows the website to be saved to an Iphone home screen and run like a native app -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- makes the status bar at the top screen translucent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- The text that appears in the browser tab -->
+    <title>Game Details</title>
+    <style>
+      /* Global reset and base style */
+      body {
+        /* Sets default font */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ffffff; /* Default text color is white */
+        margin: 0; /* Removes default browser margin*/
 
-                /* ensures content isn't hidden under phone notches or bottom swipe bars */
-                padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+        /* ensures content isn't hidden under phone notches or bottom swipe bars */
+        padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+          max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
 
-                background-color: #17171a; /*Deep gunmetal base background color*/
-                min-height: 100vh; /*Ensures the body is always at least 100% of the Viewport Height (vh)*/
-                overflow-x: hidden; /*Prevents user from accidentally scrolling sidways*/
-                overscroll-behavior-y: none; /*Stops bounce effect when scrolling pass the top*/
-                -webkit-text-size-adjust: 100%; /* Prevents IOS from auto zooming in text when device orentation changes*/
-            }
+        background-color: #17171a; /*Deep gunmetal base background color*/
+        min-height: 100vh; /*Ensures the body is always at least 100% of the Viewport Height (vh)*/
+        overflow-x: hidden; /*Prevents user from accidentally scrolling sidways*/
+        overscroll-behavior-y: none; /*Stops bounce effect when scrolling pass the top*/
+        -webkit-text-size-adjust: 100%; /* Prevents IOS from auto zooming in text when device orentation changes*/
+      }
 
-            /* Ambient background glows */
-            /* ::before and ::after allows us to create "fake" HTML elements entirely out of CSS to use for decorations */
-            body::before, body::after{
-                content: ''; /*Required for psuedo-elements to render */
-                position: fixed; /* Locks them to the screen so they dont scroll with the page*/
-                border-radius: 50%; /* Makes the square elemetnt pefectly round*/
-                z-index: -1; /* Pushes them behind all other content on the page*/
-            }
+      /* Ambient background glows */
+      /* ::before and ::after allows us to create "fake" HTML elements entirely out of CSS to use for decorations */
+      body::before,
+      body::after {
+        content: ''; /*Required for psuedo-elements to render */
+        position: fixed; /* Locks them to the screen so they dont scroll with the page*/
+        border-radius: 50%; /* Makes the square elemetnt pefectly round*/
+        z-index: -1; /* Pushes them behind all other content on the page*/
+      }
 
-            /* Top-left ambient light*/
-            body::before {
-            top: -15%; left: -10%; width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, rgba(226, 232, 240, 0) 70%);
-            }
+      /* Top-left ambient light*/
+      body::before {
+        top: -15%;
+        left: -10%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(
+          circle,
+          rgba(226, 232, 240, 0.22) 0%,
+          rgba(226, 232, 240, 0) 70%
+        );
+      }
 
-            /* Bottom-right ambient light*/
-            body::after {
-            bottom: -15%; right: -10%; width: 800px; height: 800px;
-            background: radial-gradient(circle, rgba(134, 134, 128, 0.18) 0%, rgba(0, 195, 255, 0) 70%);
-            }
+      /* Bottom-right ambient light*/
+      body::after {
+        bottom: -15%;
+        right: -10%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(
+          circle,
+          rgba(134, 134, 128, 0.18) 0%,
+          rgba(0, 195, 255, 0) 70%
+        );
+      }
 
-            /* header layout */
-            .header-container{
-                max-width: 800px; /*Prevents the header from stretching to wide on massive desktop monitors*/
-                margin: 0 auto 30px auto; /* Top 0, Left/right auto (centers it), Bottom 30px*/
-                text-align: center;
-            }
+      /* header layout */
+      .header-container {
+        max-width: 800px; /*Prevents the header from stretching to wide on massive desktop monitors*/
+        margin: 0 auto 30px auto; /* Top 0, Left/right auto (centers it), Bottom 30px*/
+        text-align: center;
+      }
 
-            .back-button{
-                display:inline-block; /* Allows margins to work on an inline element like a link*/
-                margin-bottom:20px; 
-                color: #94a3b8;
-                text-decoration: none; /* Removes the default blue underline from the link*/
-                font-size: 1.1em;
-                transition: color 0.2s; /* Creates a smooth 0.2-second animation when hovering*/
-            }
+      .back-button {
+        display: inline-block; /* Allows margins to work on an inline element like a link*/
+        margin-bottom: 20px;
+        color: #94a3b8;
+        text-decoration: none; /* Removes the default blue underline from the link*/
+        font-size: 1.1em;
+        transition: color 0.2s; /* Creates a smooth 0.2-second animation when hovering*/
+      }
 
-            .back-button:hover{ color: #ffffff; }
+      .back-button:hover {
+        color: #ffffff;
+      }
 
-            /* Game Box Art Styling */
-            .header-container img {
-                width: 100%;
-                max-width: 500px; /* Caps the image size so it doesn't take up the whole screen*/
-                border-radius: 12px; /* Rounds the coners of the images*/
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Adds a drop shawdow (X-offset, Y-offset, Blur, color)*/
-                margin-bottom: 15px;
-            }
+      /* Game Box Art Styling */
+      .header-container img {
+        width: 100%;
+        max-width: 500px; /* Caps the image size so it doesn't take up the whole screen*/
+        border-radius: 12px; /* Rounds the coners of the images*/
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Adds a drop shawdow (X-offset, Y-offset, Blur, color)*/
+        margin-bottom: 15px;
+      }
 
-            /* Butoon components */
-            .sync-btn {
-                background: rgba(255, 255, 255, 0.1); /* 10% transparent white background*/
-                border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
-                color: white;
-                padding: 8px 16px; /* 8px top/bottom, 16px left/right */
-                border-radius: 8px;
-                cursor: pointer; /*Changes the mouse arrow to a point hand*/
-                font-weight: bold;
-                margin-top: 10px;
-                transition:  0.2s; /*Smooth background change on hover*/
-            }
+      /* Butoon components */
+      .sync-btn {
+        background: rgba(255, 255, 255, 0.1); /* 10% transparent white background*/
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
+        color: white;
+        padding: 8px 16px; /* 8px top/bottom, 16px left/right */
+        border-radius: 8px;
+        cursor: pointer; /*Changes the mouse arrow to a point hand*/
+        font-weight: bold;
+        margin-top: 10px;
+        transition: 0.2s; /*Smooth background change on hover*/
+      }
 
-            .sync-btn:hover{
-                background: rgba(255, 255, 255, 0.2); /*Brightens background on hover*/
-            }
+      .sync-btn:hover {
+        background: rgba(255, 255, 255, 0.2); /*Brightens background on hover*/
+      }
 
-            /* ACHIEVEMENT FEED & CARDS */
-            #achievement-feed{
-                max-width: 800px;
-                margin: 0 auto;
-                display: flex; /*Flexbox is a modern layout tool*/
-                flex-direction: column; /* Stacks the cards vertically instad of horizontally*/
-                gap: 15px; /* Puts exactly 15px of space between every card*/
-            }
-            .achievement-card{
-                padding: 15px; 
-                display: flex; 
-                flex-direction: column;
-                border-radius: 16px;
-                /*Fades the background from top-left to bottom-right*/
-                background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
-                /*Blurs everything rendered behind this div*/
-                backdrop-filter: blur(16px); 
-                -webkit-backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                /* Adds slightly brighter borders to the top and left to stimulate light hitting glass*/
-                border-top: 1px solid rgba(255, 255, 255, 0.3); 
-                border-left: 1px solid rgba(255, 255, 255, 0.3);
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            }
+      /* ACHIEVEMENT FEED & CARDS */
+      #achievement-feed {
+        max-width: 800px;
+        margin: 0 auto;
+        display: flex; /*Flexbox is a modern layout tool*/
+        flex-direction: column; /* Stacks the cards vertically instad of horizontally*/
+        gap: 15px; /* Puts exactly 15px of space between every card*/
+      }
+      .achievement-card {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        border-radius: 16px;
+        /*Fades the background from top-left to bottom-right*/
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.02) 100%
+        );
+        /*Blurs everything rendered behind this div*/
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Adds slightly brighter borders to the top and left to stimulate light hitting glass*/
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        border-left: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
 
-            .card-top-row{
-                display: flex;
-                align-items: flex-start; /* Aligns items to the top rather than stretching them*/
-                gap: 20px;
-                width: 100%;
-            }
+      .card-top-row {
+        display: flex;
+        align-items: flex-start; /* Aligns items to the top rather than stretching them*/
+        gap: 20px;
+        width: 100%;
+      }
 
-            /* Logic for unearned trophies */
-            .locked-card .card-top-row,
-            .locked-card summary{ 
-                opacity: 0.5; /* Makes the whole row semi-transparent*/
-                filter: grayscale(100%) /*Removes all color from the image and text*/
-            }
+      /* Logic for unearned trophies */
+      .locked-card .card-top-row,
+      .locked-card summary {
+        opacity: 0.5; /* Makes the whole row semi-transparent*/
+        filter: grayscale(100%); /*Removes all color from the image and text*/
+      }
 
-            .achievement-card img {
-                width: 64px;
-                height: 64px;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            }
+      .achievement-card img {
+        width: 64px;
+        height: 64px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
 
-            .achievement-info { flex-grow: 1; } /* Tells this container to take up all remaining horizantal space*/
-            .achievement-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
-            .achievement-desc { color: #e2e8f0; font-size: 0.9em; margin-bottom: 5px;}
-            .achievement-meta { font-size: 0.85em; color: #94a3b8}
+      .achievement-info {
+        flex-grow: 1;
+      } /* Tells this container to take up all remaining horizantal space*/
+      .achievement-name {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .achievement-desc {
+        color: #e2e8f0;
+        font-size: 0.9em;
+        margin-bottom: 5px;
+      }
+      .achievement-meta {
+        font-size: 0.85em;
+        color: #94a3b8;
+      }
 
-            /* SCRAPED GUIDE CONTENT FORMATTING */
-            .guide-dropdown {
-                margin-top: 12px;
-            }
+      /* SCRAPED GUIDE CONTENT FORMATTING */
+      .guide-dropdown {
+        margin-top: 12px;
+      }
 
-            .guide-content {
-                margin-top: 10px;
-                padding: 15px;
-                background: rgba(0, 0, 0, 0.2); /* Creates a dark inset well for the guide text*/
-                border-radius: 8px;
-                overflow-x: hidden; /* Prevents scraped content from breaking the screen width*/
-            }
-            
-            /* Enforces responsivness on scraped media */
-            .guide-content iframe,
-            .guide-content video {
-                max-width: 100%; /* Prevents images/videos from bleeding off the screen*/
-                height: auto;
-                border-radius: 8px;
-                margin-top: 10px;
-                display: block;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            }
+      .guide-content {
+        margin-top: 10px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.2); /* Creates a dark inset well for the guide text*/
+        border-radius: 8px;
+        overflow-x: hidden; /* Prevents scraped content from breaking the screen width*/
+      }
 
-            .guide-content img{
-                max-width: 100%;
-                height: auto;
-                border-radius: 8px;
-                display: inline-block;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-                margin: 5px 0;
-            }
+      /* Enforces responsivness on scraped media */
+      .guide-content iframe,
+      .guide-content video {
+        max-width: 100%; /* Prevents images/videos from bleeding off the screen*/
+        height: auto;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: block;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
 
-            .guide-content iframe {
-                aspect-ratio: 16 / 9; /* Forces YouTube embeds to maintain proper widescreen formatting*/
-                width: 100%;
-            }
+      .guide-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        margin: 5px 0;
+      }
 
-            /* Formats scraped HTML tables */
-            .guide-content table:not(.invisible) {
-                width: 100%;
-                border-collapse: collapse; /* Merges double bordes into single solid lines*/
-                margin: 15px 0;
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 8px;
-                overflow: hidden;
-            }
+      .guide-content iframe {
+        aspect-ratio: 16 / 9; /* Forces YouTube embeds to maintain proper widescreen formatting*/
+        width: 100%;
+      }
 
-            .guide-content table:not(.invisible) th, 
-            .guide-content table:not(.invisible) td {
-                padding: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                text-align: left;
-                font-size: 0.9em;
-                color: #e2e8f0;
-            }
+      /* Formats scraped HTML tables */
+      .guide-content table:not(.invisible) {
+        width: 100%;
+        border-collapse: collapse; /* Merges double bordes into single solid lines*/
+        margin: 15px 0;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+      }
 
-            .guide-content table:not(.invisible) th {
-                background: rgba(255, 255, 255, 0.1);
-                font-weight: bold;
-                color: #ffffff;
-            }
+      .guide-content table:not(.invisible) th,
+      .guide-content table:not(.invisible) td {
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+        font-size: 0.9em;
+        color: #e2e8f0;
+      }
 
-            /* Formats invisible layout tables*/
-            .guide-content table.invisible {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 15px 0;
-                background: transparent;
-                border: none;
-            }
+      .guide-content table:not(.invisible) th {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: bold;
+        color: #ffffff;
+      }
 
-            .guide-content table.invisible td {
-                padding: 5px; /* Adds a clean gap between the side-by-side images */
-                border: none;
-                vertical-align: top;
-            }
+      /* Formats invisible layout tables*/
+      .guide-content table.invisible {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        background: transparent;
+        border: none;
+      }
 
-            /* Force layout images to perfectly fill their half of the screen */
-            .guide-content table.invisible img,
-            .guide-content img.fr-fic {
-                max-width: 100%; 
-                width: auto !important;
-                height: auto;
-                border-radius: 8px;
-                display: block;
-                margin: 0 auto; /* Centers the image*/
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            }
-            
-            .guide-content p,
-            .guide-content div,
-            .guide-content li,
-            .guide-content td
-            {
-                color: #e2e8f0 !important ;
-                line-height: 1.6; /* Adds breathing room between lines of text*/
-            }
+      .guide-content table.invisible td {
+        padding: 5px; /* Adds a clean gap between the side-by-side images */
+        border: none;
+        vertical-align: top;
+      }
 
-            .guide-content span,
-            .guide-content font,
-            .guide-content b,
-            .guide-content strong {
-                color: #e2e8f0;
-                line-height: 1.6;
-            }
+      /* Force layout images to perfectly fill their half of the screen */
+      .guide-content table.invisible img,
+      .guide-content img.fr-fic {
+        max-width: 100%;
+        width: auto !important;
+        height: auto;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto; /* Centers the image*/
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
 
-            .guide-content a,
-            .guide-content a * {
-                color: #60a5fa !important; /* Forces all links to be bright blue*/
-                text-decoration: none;
-            }
+      .guide-content p,
+      .guide-content div,
+      .guide-content li,
+      .guide-content td {
+        color: #e2e8f0 !important ;
+        line-height: 1.6; /* Adds breathing room between lines of text*/
+      }
 
-            .guide-content a:hover {
-                text-decoration: underline;
-            }
+      .guide-content span,
+      .guide-content font,
+      .guide-content b,
+      .guide-content strong {
+        color: #e2e8f0;
+        line-height: 1.6;
+      }
 
-            .guide-content ul,
-            .guide-content ol {
-                padding-left: 20px;
-                margin-top: 10px;
-            }
+      .guide-content a,
+      .guide-content a * {
+        color: #60a5fa !important; /* Forces all links to be bright blue*/
+        text-decoration: none;
+      }
 
-            .guide-content li{
-                margin-bottom: 8px;
-            }
+      .guide-content a:hover {
+        text-decoration: underline;
+      }
 
-            /* Targets tiny icon images and prevents them from stretching*/
-            .guide-content img.input,
-            .guide-content img.emoticon,
-            .guide-content img.typo-icon,
-            .guide-content img[src*="/trophies/"],
-            .guide-content img[src*="/emoticons/"],
-            .guide-content img[src*="/icons/"] {
-                width: auto !important;
-                max-width: 32px !important; 
-                height: auto !important;
-                display: inline-block !important; 
-                margin: 0 4px !important;
-                box-shadow: none !important; 
-                vertical-align: middle !important;
-                border-radius: 4px !important;
-            }
+      .guide-content ul,
+      .guide-content ol {
+        padding-left: 20px;
+        margin-top: 10px;
+      }
 
-            /* BADGES & CHECKBOXES */
-            .reward-badge{
-                background: rgba(255, 255, 255, 0.1); 
-                border: 1px solid rgba(255,255, 255, 0.2);
-                padding: 6px 14px; 
-                border-radius: 20px; /* Pill Shape*/
-                font-size: 0.9em; 
-                font-weight: bold;
-            }
-            
-            /* Special glowing styling applied only to Platinum trophies */
-            .platinum-glow {
-                background: linear-gradient(135deg, rgba(138, 180, 248, 0.2) 0%, rgba(138, 180, 248, 0.05) 100%);
-                border: 1px solid rgba(138, 180, 248, 0.5);
-                border-top: 2px solid rgba(138, 180, 248, 0.8);
-                border-left: 2px solid rgba(138, 180, 248, 0.8);
+      .guide-content li {
+        margin-bottom: 8px;
+      }
 
-                box-shadow: 0 0 25px 5px rgba(138, 180, 248, 0.3), 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            }
+      /* Targets tiny icon images and prevents them from stretching*/
+      .guide-content img.input,
+      .guide-content img.emoticon,
+      .guide-content img.typo-icon,
+      .guide-content img[src*='/trophies/'],
+      .guide-content img[src*='/emoticons/'],
+      .guide-content img[src*='/icons/'] {
+        width: auto !important;
+        max-width: 32px !important;
+        height: auto !important;
+        display: inline-block !important;
+        margin: 0 4px !important;
+        box-shadow: none !important;
+        vertical-align: middle !important;
+        border-radius: 4px !important;
+      }
 
-            .platinum-glow .reward-badge{
-                background: rgba(138, 180, 248, 0.3);
-                border: 1px solid rgba(138, 180, 248, 0.6);
-                color: #ffffff;
-                text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-            }
+      /* BADGES & CHECKBOXES */
+      .reward-badge {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 14px;
+        border-radius: 20px; /* Pill Shape*/
+        font-size: 0.9em;
+        font-weight: bold;
+      }
 
-            .collectible-checkbox {
-                width: 20px;
-                height: 20px;
-                cursor: pointer;
-                accent-color: #0ea5e9; /* Changes the default blue checkmark color*/
-            }
+      /* Special glowing styling applied only to Platinum trophies */
+      .platinum-glow {
+        background: linear-gradient(
+          135deg,
+          rgba(138, 180, 248, 0.2) 0%,
+          rgba(138, 180, 248, 0.05) 100%
+        );
+        border: 1px solid rgba(138, 180, 248, 0.5);
+        border-top: 2px solid rgba(138, 180, 248, 0.8);
+        border-left: 2px solid rgba(138, 180, 248, 0.8);
 
-            /* Syling for when a user checks a box in a guide table */
-            .row-completed td {
-                opacity: 0.4;
-                text-decoration: line-through;
-                background-color: rgba(14, 165, 233, 0.05);
-                transition: all 0.3s ease;
-            }
+        box-shadow:
+          0 0 25px 5px rgba(138, 180, 248, 0.3),
+          0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
 
-            /* ROADMAP STYLING */
-            .roadmap-summary {
-                background: linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129, 0.05) 100%);
-                border: 1px solid rgba(16, 185, 129, 0.3);
-                border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
-                border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
-                color: #34d399; /*Text*/
-                padding: 14px;
-                border-radius: 8px;
-                font-size: 1.1em;
-                font-weight: bold;
-                cursor: pointer;
-                text-align: center;
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                transition: transform 0.2s, box-shadow 0.2s;
-                list-style: none; /*Hides the native HTML disclosure triangle*/
-            }
+      .platinum-glow .reward-badge {
+        background: rgba(138, 180, 248, 0.3);
+        border: 1px solid rgba(138, 180, 248, 0.6);
+        color: #ffffff;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+      }
 
-            /* Safari specific fix to hide the disclosure triangle */
-            .roadmap-summary::-webkit-details-marker {
-                display: none;
-            }
+      .collectible-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #0ea5e9; /* Changes the default blue checkmark color*/
+      }
 
-            .roadmap-summary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            }
+      /* Syling for when a user checks a box in a guide table */
+      .row-completed td {
+        opacity: 0.4;
+        text-decoration: line-through;
+        background-color: rgba(14, 165, 233, 0.05);
+        transition: all 0.3s ease;
+      }
 
-            /* Reformats the PSNProfiles Bootstrap grid into a flexbox grid*/
-            .guide-content .roadmap-trophies {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 15px;
-                margin: 20px 0;
-            }
+      /* ROADMAP STYLING */
+      .roadmap-summary {
+        background: linear-gradient(
+          135deg,
+          rgba(16, 185, 129, 0.2) 0%,
+          rgba(16, 185, 129, 0.05) 100%
+        );
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+        border-left: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: #34d399; /*Text*/
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        list-style: none; /*Hides the native HTML disclosure triangle*/
+      }
 
-            /* Selects any elements inside the roadmap whose class contains "col-"*/
-            .guide-content .roadmap-trophies [class*="col-"] {
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255,255,255,0.01) 100%);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-top: 1px solid rgba(255, 255, 255, 0.2);
-                border-left: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 12px;
-                padding: 15px;
-                width: calc(50% - 10px); /* Forces a 2-column layout*/
-                flex-grow: 1; /*Tells odd-numbered items to stretch and fill empty space*/
-                box-sizing: border-box; /*Includes padding in the width calculation*/
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            }
+      /* Safari specific fix to hide the disclosure triangle */
+      .roadmap-summary::-webkit-details-marker {
+        display: none;
+      }
 
-            /* MOBILE RESPONSIVENESS */
-            /* only applies when the screen is 600px wide or smaller */
-            @media (max-width: 600px){
-                .card-top-row{
-                    flex-direction: column; /*Stacks the icon, text, and badge vertically*/
-                    gap: 12px;
-                }
+      .roadmap-summary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      }
 
-                .reward-badge{
-                    align-self: flex-start; /*Moves the badge to the left edge*/
-                }
+      /* Reformats the PSNProfiles Bootstrap grid into a flexbox grid*/
+      .guide-content .roadmap-trophies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 20px 0;
+      }
 
-                .guide-content table:not(.invisible){
-                    display: block; /*Changes table behavior*/
-                    overflow-x: auto; /*Allows wide tables to be scrolled left/right with a finger*/
-                }
+      /* Selects any elements inside the roadmap whose class contains "col-"*/
+      .guide-content .roadmap-trophies [class*='col-'] {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 255, 255, 0.01) 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 15px;
+        width: calc(50% - 10px); /* Forces a 2-column layout*/
+        flex-grow: 1; /*Tells odd-numbered items to stretch and fill empty space*/
+        box-sizing: border-box; /*Includes padding in the width calculation*/
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
 
-                .guide-content table:not(.invisible) img {
-                    max-width: 100%;
-                    min-width: 120px; /* Prevents images from getting crushed too small*/
-                    height: auto;
-                }
+      /* MOBILE RESPONSIVENESS */
+      /* only applies when the screen is 600px wide or smaller */
+      @media (max-width: 600px) {
+        .card-top-row {
+          flex-direction: column; /*Stacks the icon, text, and badge vertically*/
+          gap: 12px;
+        }
 
-                /* Shrinks the ambient background glows */
-                body::before, body::after{
-                    width: 250px;
-                    height: 250px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header-container">
-            <!-- Simple link back to the main dashboard -->
-            <a href="index.html" class="back-button"> ← Back</a>
+        .reward-badge {
+          align-self: flex-start; /*Moves the badge to the left edge*/
+        }
 
-            <!-- This empty container will be filled by JavaScript once the database returns the game info -->
-            <div id="game-header">
-                <h2>Loading...</h2>
-            </div>
+        .guide-content table:not(.invisible) {
+          display: block; /*Changes table behavior*/
+          overflow-x: auto; /*Allows wide tables to be scrolled left/right with a finger*/
+        }
 
-            <!-- Action button row -->
-            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <!-- onclick triggers specific JavaScript functions defined below -->
-                <button id="sort-btn" class="sync-btn" onclick="toggleSort()">
-                    Sort: Locked First
-                </button>
+        .guide-content table:not(.invisible) img {
+          max-width: 100%;
+          min-width: 120px; /* Prevents images from getting crushed too small*/
+          height: auto;
+        }
 
-                <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
-                Sync Trophies
-            </button>
-            
-            <button id="rescrape-btn" class="sync-btn" onclick="rescrapeGuides()">
-                Force Rescrape
-            </button>
-        </div>
+        /* Shrinks the ambient background glows */
+        body::before,
+        body::after {
+          width: 250px;
+          height: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <!-- Simple link back to the main dashboard -->
+      <a href="index.html" class="back-button"> ← Back</a>
+
+      <!-- This empty container will be filled by JavaScript once the database returns the game info -->
+      <div id="game-header">
+        <h2>Loading...</h2>
+      </div>
+
+      <!-- Action button row -->
+      <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap">
+        <!-- onclick triggers specific JavaScript functions defined below -->
+        <button id="sort-btn" class="sync-btn" onclick="toggleSort()">
+          Sort: Locked First
+        </button>
+
+        <button id="sync-game-btn" class="sync-btn" onclick="triggerTargetedSync()">
+          Sync Trophies
+        </button>
+
+        <button id="rescrape-btn" class="sync-btn" onclick="rescrapeGuides()">
+          Force Rescrape
+        </button>
+      </div>
     </div>
 
     <!-- The container where the injected Roadmap HTML will be placed -->
-    <div id="roadmap-container" style="max-width: 800px; margin: 0 auto 20px auto;"></div>
+    <div id="roadmap-container" style="max-width: 800px; margin: 0 auto 20px auto"></div>
 
     <!-- The container where the loop of individual achievement cards will appended -->
-        <div id="achievement-feed"></div>
+    <div id="achievement-feed"></div>
 
-        <script>
-            // URL PARAMETER EXTRACTION
-            // Grabs the current URL  and parses it into a dictionary-like object.
-            const urlParams = new URLSearchParams(window.location.search);
-            const gameId = urlParams.get('id');
-            const friendId = urlParams.get('friendId');
-            const friendName = urlParams.get('friendName');
-            // if psnId exists, use it. Otherwise, fallback to friendName
-            const friendPsn = urlParams.get('psnId') || friendName;
-            
-            // Global states used by the sorting functions
-            let globalAchievements = [];
-            let isSortedLockedFirst = false;
+    <script>
+      // URL PARAMETER EXTRACTION
+      // Grabs the current URL  and parses it into a dictionary-like object.
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get('id');
+      const friendId = urlParams.get('friendId');
+      const friendName = urlParams.get('friendName');
+      // if psnId exists, use it. Otherwise, fallback to friendName
+      const friendPsn = urlParams.get('psnId') || friendName;
 
-            // CONTEXT AWARENESS (FRIEND MODE)
-            // if a friendId exists in the URL, modify the UI to ac a "Spectator" rather than an "Owner".
-            if(friendId){
-                const backBtn = document.querySelector('.back-button');
-                // Change the back button to return to the friend's profile instead of your own dashboard
-                backBtn.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(friendPsn)}`;
-                backBtn.innerHTML = `← Back to ${friendPsn}'s Library`;
+      // Global states used by the sorting functions
+      let globalAchievements = [];
+      let isSortedLockedFirst = false;
 
-                const syncBtn = document.getElementById('sync-game-btn');
-                // Hide the sync button since you cannont sync someone else's account
-                if (syncBtn) syncBtn.style.display = 'none';
-            }
+      // CONTEXT AWARENESS (FRIEND MODE)
+      // if a friendId exists in the URL, modify the UI to ac a "Spectator" rather than an "Owner".
+      if (friendId) {
+        const backBtn = document.querySelector('.back-button');
+        // Change the back button to return to the friend's profile instead of your own dashboard
+        backBtn.href = `friend.html?id=${friendId}&username=${encodeURIComponent(friendName)}&psnId=${encodeURIComponent(friendPsn)}`;
+        backBtn.innerHTML = `← Back to ${friendPsn}'s Library`;
 
-            // CORE FETCH LOGIC
-            async function loadGameDetails() {
-                
-                    // Retrieves the secret authorization token from local browser storage
-                    const token = localStorage.getItem('statsToken');
-                    if(!token){
-                        // Security check. if no token exists, kick them to the login page
-                        window.location.href = 'login.html';
-                        return;
-                    }
+        const syncBtn = document.getElementById('sync-game-btn');
+        // Hide the sync button since you cannont sync someone else's account
+        if (syncBtn) syncBtn.style.display = 'none';
+      }
 
-                try{
+      // CORE FETCH LOGIC
+      async function loadGameDetails() {
+        // Retrieves the secret authorization token from local browser storage
+        const token = localStorage.getItem('statsToken');
+        if (!token) {
+          // Security check. if no token exists, kick them to the login page
+          window.location.href = 'login.html';
+          return;
+        }
 
-                    // Dynamically routes the API call depending on whether we are looking at our own game or a friend's game.
-                    const gameEndpoint = friendId ? `/api/friends/${friendId}/games/${gameId}` : `/api/games/${gameId}`;
-                    const achEndpoint = friendId ? `/api/friends/${friendId}/games/${gameId}/achievements` : `/api/games/${gameId}/achievements`;
+        try {
+          // Dynamically routes the API call depending on whether we are looking at our own game or a friend's game.
+          const gameEndpoint = friendId
+            ? `/api/friends/${friendId}/games/${gameId}`
+            : `/api/games/${gameId}`;
+          const achEndpoint = friendId
+            ? `/api/friends/${friendId}/games/${gameId}/achievements`
+            : `/api/games/${gameId}/achievements`;
 
-                    // The await keyword pauses execution until the network request completes
-                    const gameRes = await fetch(gameEndpoint, {
-                    headers: {
-                        'Authorization': `Bearer ${token}` //Passes the token to the backend for verification
-                    }
-                });
+          // The await keyword pauses execution until the network request completes
+          const gameRes = await fetch(gameEndpoint, {
+            headers: {
+              Authorization: `Bearer ${token}`, //Passes the token to the backend for verification
+            },
+          });
 
-                if(!gameRes.ok) throw new Error('Failed to load game details');
-                //Parses the raw response string into a readable JSON object
-                const game = await gameRes.json();
+          if (!gameRes.ok) throw new Error('Failed to load game details');
+          //Parses the raw response string into a readable JSON object
+          const game = await gameRes.json();
 
-                // Targets the #game-header div and injects HTML built dynamically using data from the database
-                document.getElementById('game-header').innerHTML = `
+          // Targets the #game-header div and injects HTML built dynamically using data from the database
+          document.getElementById('game-header').innerHTML = `
                     <img src ="${game.boxArtUrl}" alt="${game.title}">
                     <h1>${game.title}</h1>
-                    <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`
+                    <p>${game.progress.unlockedCount} / ${game.progress.totalCount} Trophies Unlocked</p>`;
 
-                // Roadmap Injection Logic
-                const roadmapContainer = document.getElementById('roadmap-container');
-                if (game.roadmapHtml) {
-                    // <details> and <summary> create a native HTML accordion dropdown.
-                    roadmapContainer.innerHTML = `
+          // Roadmap Injection Logic
+          const roadmapContainer = document.getElementById('roadmap-container');
+          if (game.roadmapHtml) {
+            // <details> and <summary> create a native HTML accordion dropdown.
+            roadmapContainer.innerHTML = `
                         <details class="guide-dropdown" style="width: 100%;">
                             <summary class="roadmap-summary">
                                 🗺️ View Trophy Roadmap & Walkthrough
@@ -525,93 +578,100 @@
                             </div>
                         </details>
                     `;
-                    // Runs the checkbox parser to add interactive checkboxes to any tables found inside the roadmap
-                    injectCheckboxes(roadmapContainer, gameId, 'roadmap');
-                    } else {
-                    // Flushes the container if no roadmap data exists
-                    roadmapContainer.innerHTML = '';
-                }
+            // Runs the checkbox parser to add interactive checkboxes to any tables found inside the roadmap
+            injectCheckboxes(roadmapContainer, gameId, 'roadmap');
+            sanitizeColors(roadmapContainer);
+          } else {
+            // Flushes the container if no roadmap data exists
+            roadmapContainer.innerHTML = '';
+          }
 
-                const achRes = await fetch(achEndpoint, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+          const achRes = await fetch(achEndpoint, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-                    if (!achRes.ok) throw new Error('Failed to load achievements');
-                    
-                    globalAchievements = await achRes.json();
-                    // Passes the unsorted array through the sort function, then immediately passes that result into the render function
-                    renderAchievements(sortTrophies(globalAchievements));
+          if (!achRes.ok) throw new Error('Failed to load achievements');
 
-            } catch (error) {
-                    console.error('Error loading game:', error);
-                    document.getElementById('game-header').innerHTML = '<h2>Error loading game details.</h2>';
-                }
+          globalAchievements = await achRes.json();
+          // Passes the unsorted array through the sort function, then immediately passes that result into the render function
+          renderAchievements(sortTrophies(globalAchievements));
+        } catch (error) {
+          console.error('Error loading game:', error);
+          document.getElementById('game-header').innerHTML =
+            '<h2>Error loading game details.</h2>';
+        }
+      }
+
+      // SORTING ENGINE
+      function sortTrophies(arrayToSort) {
+        // Creates a shallow copy of the array using the spread operator [...] so we don't mutate the original data
+        return [...arrayToSort].sort((a, b) => {
+          // Always pin Platinum trophies to the absolute top
+          if (a.weight.value === 'Platinum') return -1;
+          if (b.weight.value === 'Platinum') return 1;
+
+          // if both trophies share the same the same unlock status, do not move them relative to each other (keeps default order)
+          if (a.isUnlocked === b.isUnlocked) return 0;
+
+          // Standard sorting logic based on the boolean state
+          if (isSortedLockedFirst) {
+            return a.isUnlocked ? 1 : -1;
+          } else {
+            return a.isUnlocked ? -1 : 1;
+          }
+        });
+      }
+
+      // DOM CREATION & RENDERING
+      function renderAchievements(achievementsArray) {
+        const feedContainer = document.getElementById('achievement-feed');
+        feedContainer.innerHTML = ''; // Wipes container clean before rendering
+
+        // Uses Array.filter() to split the main array into two separate arrays based on DLC groups
+        const baseGame = achievementsArray.filter(
+          ach => !ach.trophyGroupId || ach.trophyGroupId === 'default'
+        );
+        const addOns = achievementsArray.filter(
+          ach => ach.trophyGroupId && ach.trophyGroupId !== 'default'
+        );
+
+        if (baseGame.length > 0) {
+          feedContainer.innerHTML +=
+            '<h3 style="margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Base Game</h3>';
+          // Array.forEach() loops through the data, creates a card DOM element, and appends it to the page
+          baseGame.forEach(ach => feedContainer.appendChild(createCard(ach)));
         }
 
-        // SORTING ENGINE
-        function sortTrophies(arrayToSort){
-            // Creates a shallow copy of the array using the spread operator [...] so we don't mutate the original data
-            return [...arrayToSort].sort((a, b) => {
-                // Always pin Platinum trophies to the absolute top
-                if(a.weight.value === 'Platinum') return -1;
-                if(b.weight.value === 'Platinum') return 1;
+        if (addOns.length > 0) {
+          feedContainer.innerHTML +=
+            '<h3 style="margin-top: 30px; margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Add-ons</h3>';
+          addOns.forEach(ach => feedContainer.appendChild(createCard(ach)));
+        }
+      }
 
-                // if both trophies share the same the same unlock status, do not move them relative to each other (keeps default order)
-                if(a.isUnlocked === b.isUnlocked) return 0;
+      // This function returns a physical DOM element (not a string) so it can be appended above
+      function createCard(ach) {
+        const card = document.createElement('div');
+        let cardClasses = 'achievement-card';
 
-                // Standard sorting logic based on the boolean state
-                if(isSortedLockedFirst){
-                    return a.isUnlocked ? 1 : -1;
-                } else {
-                    return a.isUnlocked ? -1 : 1;
-                }
-            });
+        // Appends specific CSS classes based on the trophy data
+        if (!ach.isUnlocked) {
+          cardClasses += ' locked-card';
+        } else if (ach.weight.value === 'Platinum') {
+          cardClasses += ' platinum-glow';
         }
 
-        // DOM CREATION & RENDERING
-        function renderAchievements(achievementsArray){
-            const feedContainer = document.getElementById('achievement-feed');
-            feedContainer.innerHTML = ''; // Wipes container clean before rendering
+        card.className = cardClasses;
 
-            // Uses Array.filter() to split the main array into two separate arrays based on DLC groups
-            const baseGame = achievementsArray.filter(ach => !ach.trophyGroupId || ach.trophyGroupId === 'default');
-            const addOns = achievementsArray.filter (ach => ach.trophyGroupId && ach.trophyGroupId !== 'default');
+        // Formats the timestamp string into a localized, human-readable date
+        const unlockText = ach.isUnlocked
+          ? `Unlocked on ${new Date(ach.unlockDate).toLocaleDateString()}`
+          : 'Locked';
 
-            if(baseGame.length > 0) {
-                feedContainer.innerHTML += '<h3 style="margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Base Game</h3>';
-                // Array.forEach() loops through the data, creates a card DOM element, and appends it to the page
-                baseGame.forEach(ach => feedContainer.appendChild(createCard(ach)));
-            }
-
-            if(addOns.length > 0){
-                feedContainer.innerHTML += '<h3 style="margin-top: 30px; margin-bottom: 0; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Add-ons</h3>';
-                addOns.forEach(ach => feedContainer.appendChild(createCard(ach)));
-            }
-        }
-
-        // This function returns a physical DOM element (not a string) so it can be appended above
-        function createCard(ach){
-            const card = document.createElement('div');
-            let cardClasses = 'achievement-card';
-
-            // Appends specific CSS classes based on the trophy data
-                if(!ach.isUnlocked){
-                    cardClasses += ' locked-card';
-                } else if (ach.weight.value === 'Platinum'){
-                    cardClasses += ' platinum-glow';
-                }
-
-                card.className = cardClasses;
-
-                // Formats the timestamp string into a localized, human-readable date
-                const unlockText = ach.isUnlocked 
-                        ? `Unlocked on ${new Date(ach.unlockDate).toLocaleDateString()}` 
-                        : 'Locked';
-
-                // Builds the interior HTML of the card
-                card.innerHTML = `
+        // Builds the interior HTML of the card
+        card.innerHTML = `
                     <div class="card-top-row">
                         <img src="${ach.iconUrl}" alt="Achievement Icon">
                         <div class="achievement-info">
@@ -629,230 +689,270 @@
                         <div class="guide-content"></div>
                     </details>
                 `;
-                return card;
-        }
+        return card;
+      }
 
-        // Flips the sort state boolean, updates the button text, and reruns the render engine
-        function toggleSort(){
-            const sortBtn = document.getElementById('sort-btn');
-            isSortedLockedFirst = !isSortedLockedFirst;
+      // Flips the sort state boolean, updates the button text, and reruns the render engine
+      function toggleSort() {
+        const sortBtn = document.getElementById('sort-btn');
+        isSortedLockedFirst = !isSortedLockedFirst;
 
-            sortBtn.innerHTML = isSortedLockedFirst ? 'Sort: Unlocked First' : 'Sort: Locked First';
+        sortBtn.innerHTML = isSortedLockedFirst
+          ? 'Sort: Unlocked First'
+          : 'Sort: Locked First';
 
-            const sorted = sortTrophies(globalAchievements);
-            renderAchievements(sorted);
-            
-            }
+        const sorted = sortTrophies(globalAchievements);
+        renderAchievements(sorted);
+      }
 
-            // SERVER & SCRAPER ACTIONS
-        async function triggerTargetedSync() {
-            const btn = document.getElementById('sync-game-btn');
-            btn.innerHTML = 'Syncing...';
-            btn.disabled = true; //Prevents user from clicking the button
+      // SERVER & SCRAPER ACTIONS
+      async function triggerTargetedSync() {
+        const btn = document.getElementById('sync-game-btn');
+        btn.innerHTML = 'Syncing...';
+        btn.disabled = true; //Prevents user from clicking the button
 
-            //fetch the current game's details to grab external PSN ID
-            const token = localStorage.getItem('statsToken');
-            const gameRes = await fetch(`/api/games/${gameId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            const gameData = await gameRes.json();
-
-            try{
-                // Sends a POST request to the backend telling it to run the sync script
-                const response = await fetch('/api/sync/game', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-
-                    // Send the specific PSN ID to the backend
-                    body: JSON.stringify({ externalGameId: gameData.externalGameId })
-                });
-
-                if(response.ok) {
-                    btn.innerHTML = 'Synced';
-                    // Refresh the entire browser page automatically after 1 second
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    btn.innerHTML = 'Failed';
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                console.error(error);
-                btn.innerHTML = '🔄 Sync Trophies';
-                btn.disabled = false;
-            }
-            
-        }
-
-        async function fetchGuide(detailsElement, trophyName, gameTitle) {
-            // If we already fetched data, exit immediately to save bandwidth and server load
-            if (detailsElement.dataset.loaded) return;
-            
-            // Set the flag so we don't fetch it again
-            detailsElement.dataset.loaded = 'true';
-
-            // Look inside the specific dropdown that was clicked to find the content area
-            const contentDiv = detailsElement.querySelector('.guide-content');
-            contentDiv.innerHTML = '<p style="color: #94a3b8;"><em>Grabbing the Guide!</em></p>';
-
-            const token = localStorage.getItem('statsToken');
-
-            try {
-                const res = await fetch('/api/guide', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    // Sends payload telling the server which trophy guide we want to scrape
-                    body: JSON.stringify({ trophyName: trophyName, gameId: gameId, friendId: friendId })
-                });
-
-                if (!res.ok) throw new Error('Failed to fetch guide');
-                const data = await res.json();
-                
-                // Inject the scraped HTML (and screenshots) directly into the dropdown
-                contentDiv.innerHTML = data.guide;
-
-                // Scans the newly injected HTML for tables and adds stateful checkboxes
-                injectCheckboxes(contentDiv, gameId, trophyName);
-            } catch (error) {
-                contentDiv.innerHTML = '<p style="color: #ef4444;">Error connecting to the scraper.</p>';
-                // Reset the loaded state so they can try clicking it again
-                delete detailsElement.dataset.loaded; 
-            }
-        }
-
-        // CHECKBOX ENGINE
-        // Reads tables from scraped guides and prepends an interactive checkbox tp every row
-        function injectCheckboxes(container, gameId, trophyName){
-            const tables = container.querySelectorAll('table:not(.invisible)');
-
-            tables.forEach((table, tableIndex) => {
-                const rows = table.querySelectorAll('tr'); // Grabs all table rows (tr)
-
-                rows.forEach((row, rowIndex) => {
-                    // Handles Table Headers (th)
-                    if(row.querySelector('th')){
-                        const th = document.createElement('th');
-                        th.innerText = '✓'
-                        th.style.textAlign = 'center';
-                        th.style.width = '40px';
-                        row.insertBefore(th, row.firstChild); // Inserts the checkmark column at the very beginning of the row
-                    }
-                    // Handles Standard Table Data (td)
-                    else if (row.querySelector('td')) {
-                        const td = document.createElement('td');
-                        td.style.textAlign = 'center';
-
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'collectible-checkbox';
-
-                        // Creates a unique, mathematically specific ID string so the browser remembers this exact checkbox
-                        const storageKey = `stats_chk_${gameId}_${trophyName.replace(/\s+/g, '')}_${tableIndex}_${rowIndex}`;
-
-                        // Check localStorage to see if the user already clicked this checkbox in the past
-                        if(localStorage.getItem(storageKey) === 'true') {
-                            checkbox.checked = true;
-                            row.classList.add('row-completed');
-                        }
-
-                        // Event listener watches for whenever the checkbox is clicked
-                        checkbox.addEventListener('change', (e) => {
-                            // Save the new true/false state to the browser's hard drive
-                            localStorage.setItem(storageKey, e.target.checked);
-                            if(e.target.checked){
-                                row.classList.add('row-completed');
-                            } else {
-                                row.classList.remove('row-completed');
-                            }
-                        });
-
-                        td.appendChild(checkbox);
-                        row.insertBefore(td, row.firstChild); // Injects the checkbox cell into the DOM
-                    }
-                });
-            });
-        }
-
-        //Bypasses the database cache and commands the server to launch Puppeteer again
-        async function rescrapeGuides() {
-            const btn = document.getElementById('rescrape-btn');
-            btn.innerHTML = 'Scraping...';
-            btn.disabled = true;
-
-            const token = localStorage.getItem('statsToken');
-
-            // Grabs the name of the first trophy in the array to use as an anchor point for the bot
-            const targetTrophy = globalAchievements[0].achievementName;
-
-            try{
-                const res = await fetch('/api/guide', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    // The 'forceScrape: true' flag is what tells the server to ignore MongoDB/Ram caches 
-                    body: JSON.stringify({ trophyName: targetTrophy, gameId: gameId, forceScrape: true })
-                });
-
-                if(res.ok) {
-                    btn.innerHTML = 'Done!';
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    btn.innerHTML = 'Failed';
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                btn.innerHTML = 'Error';
-                btn.disabled = false;
-            }
-        }
-
-        // GLOBAL EVENT DELEGATION
-        // Instead of attaching a click listener to 100 different links, we attach ONE listener to the whole document
-        document.addEventListener('click', (e) => {
-            // e.target is whatever the mouse actually clicked on. .closest() checks if it, or its parents, are an anchor <a> inside the roadmap.
-            const link = e.target.closest('#roadmap-container a');
-            if(link){
-                const linkText = link.innerText.trim();
-                const allTrophyNames = document.querySelectorAll('.achievement-name');
-
-                // Loops through the page looking for a trophy card that matches the text of the link that was clicked
-                for( let nameNode of allTrophyNames){
-                    if(nameNode.innerText.trim() === linkText) {
-                        e.preventDefault(); // Stops the browser from following the href link
-
-                        const card = nameNode.closest('.achievement-card');
-
-                        //scroll smoothly to the trophy
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                        // Temporarily overrides the CSS box-shadow to flash the card blue 
-                        card.style.transition = 'box-shadow 0.3s ease';
-                        card.style.boxShadow = '0 0 30px #0ea5e9, inset 0 0 15px rgba(14, 165, 233, 0.3)';
-                        setTimeout(() => {
-                            card.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.3)';
-                        }, 2000);
-
-                        // Automatically pops open the guide dropdown block for convenience
-                        const dropdown = card.querySelector('details');
-                        if(dropdown && !dropdown.open) {
-                            dropdown.open = true;
-                            if(!dropdown.dataset.loaded){
-                                fetchGuide(dropdown, linkText, gameId);
-                            }
-                        }
-                        return; //Exits the loop early since we found the match
-                    }
-                }
-            }
+        //fetch the current game's details to grab external PSN ID
+        const token = localStorage.getItem('statsToken');
+        const gameRes = await fetch(`/api/games/${gameId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
+        const gameData = await gameRes.json();
 
-        // Entry point: if a valid game ID was found in the URL, trigger the entire sequence to begin.
-        if(gameId) loadGameDetails();
-        </script>
-    </body>
+        try {
+          // Sends a POST request to the backend telling it to run the sync script
+          const response = await fetch('/api/sync/game', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+
+            // Send the specific PSN ID to the backend
+            body: JSON.stringify({ externalGameId: gameData.externalGameId }),
+          });
+
+          if (response.ok) {
+            btn.innerHTML = 'Synced';
+            // Refresh the entire browser page automatically after 1 second
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            btn.innerHTML = 'Failed';
+            btn.disabled = false;
+          }
+        } catch (error) {
+          console.error(error);
+          btn.innerHTML = '🔄 Sync Trophies';
+          btn.disabled = false;
+        }
+      }
+
+      async function fetchGuide(detailsElement, trophyName, gameTitle) {
+        // If we already fetched data, exit immediately to save bandwidth and server load
+        if (detailsElement.dataset.loaded) return;
+
+        // Set the flag so we don't fetch it again
+        detailsElement.dataset.loaded = 'true';
+
+        // Look inside the specific dropdown that was clicked to find the content area
+        const contentDiv = detailsElement.querySelector('.guide-content');
+        contentDiv.innerHTML =
+          '<p style="color: #94a3b8;"><em>Grabbing the Guide!</em></p>';
+
+        const token = localStorage.getItem('statsToken');
+
+        try {
+          const res = await fetch('/api/guide', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            // Sends payload telling the server which trophy guide we want to scrape
+            body: JSON.stringify({
+              trophyName: trophyName,
+              gameId: gameId,
+              friendId: friendId,
+            }),
+          });
+
+          if (!res.ok) throw new Error('Failed to fetch guide');
+          const data = await res.json();
+
+          // Inject the scraped HTML (and screenshots) directly into the dropdown
+          contentDiv.innerHTML = data.guide;
+
+          // Scans the newly injected HTML for tables and adds stateful checkboxes
+          injectCheckboxes(contentDiv, gameId, trophyName);
+          sanitizeColors(contentDiv);
+        } catch (error) {
+          contentDiv.innerHTML =
+            '<p style="color: #ef4444;">Error connecting to the scraper.</p>';
+          // Reset the loaded state so they can try clicking it again
+          delete detailsElement.dataset.loaded;
+        }
+      }
+
+      // CHECKBOX ENGINE
+      // Reads tables from scraped guides and prepends an interactive checkbox tp every row
+      function injectCheckboxes(container, gameId, trophyName) {
+        const tables = container.querySelectorAll('table:not(.invisible)');
+
+        tables.forEach((table, tableIndex) => {
+          const rows = table.querySelectorAll('tr'); // Grabs all table rows (tr)
+
+          rows.forEach((row, rowIndex) => {
+            // Handles Table Headers (th)
+            if (row.querySelector('th')) {
+              const th = document.createElement('th');
+              th.innerText = '✓';
+              th.style.textAlign = 'center';
+              th.style.width = '40px';
+              row.insertBefore(th, row.firstChild); // Inserts the checkmark column at the very beginning of the row
+            }
+            // Handles Standard Table Data (td)
+            else if (row.querySelector('td')) {
+              const td = document.createElement('td');
+              td.style.textAlign = 'center';
+
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.className = 'collectible-checkbox';
+
+              // Creates a unique, mathematically specific ID string so the browser remembers this exact checkbox
+              const storageKey = `stats_chk_${gameId}_${trophyName.replace(/\s+/g, '')}_${tableIndex}_${rowIndex}`;
+
+              // Check localStorage to see if the user already clicked this checkbox in the past
+              if (localStorage.getItem(storageKey) === 'true') {
+                checkbox.checked = true;
+                row.classList.add('row-completed');
+              }
+
+              // Event listener watches for whenever the checkbox is clicked
+              checkbox.addEventListener('change', e => {
+                // Save the new true/false state to the browser's hard drive
+                localStorage.setItem(storageKey, e.target.checked);
+                if (e.target.checked) {
+                  row.classList.add('row-completed');
+                } else {
+                  row.classList.remove('row-completed');
+                }
+              });
+
+              td.appendChild(checkbox);
+              row.insertBefore(td, row.firstChild); // Injects the checkbox cell into the DOM
+            }
+          });
+        });
+      }
+
+      function sanitizeColors(container) {
+        // Grab every single element inside the guide
+        const elements = container.querySelectorAll('*');
+
+        elements.forEach(el => {
+          // Skip UI buttons or checkboxes
+          if (el.classList.contains('reward-badge') || el.tagName === 'INPUT') return;
+
+          // Ask the browser what exact color it is rendering
+          const computedStyle = window.getComputedStyle(el);
+          const rgb = computedStyle.color.match(/\d+/g);
+
+          if (rgb && rgb.length >= 3) {
+            const r = parseInt(rgb[0]);
+            const g = parseInt(rgb[1]);
+            const b = parseInt(rgb[2]);
+
+            // If the color is dark gray/black (all RGB values are low)
+            if (r < 120 && g < 120 && b < 120) {
+              // Forcefully override the dark inline style with our icy white!
+              el.style.setProperty('color', '#e2e8f0', 'important');
+            }
+          }
+        });
+      }
+
+      //Bypasses the database cache and commands the server to launch Puppeteer again
+      async function rescrapeGuides() {
+        const btn = document.getElementById('rescrape-btn');
+        btn.innerHTML = 'Scraping...';
+        btn.disabled = true;
+
+        const token = localStorage.getItem('statsToken');
+
+        // Grabs the name of the first trophy in the array to use as an anchor point for the bot
+        const targetTrophy = globalAchievements[0].achievementName;
+
+        try {
+          const res = await fetch('/api/guide', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            // The 'forceScrape: true' flag is what tells the server to ignore MongoDB/Ram caches
+            body: JSON.stringify({
+              trophyName: targetTrophy,
+              gameId: gameId,
+              forceScrape: true,
+            }),
+          });
+
+          if (res.ok) {
+            btn.innerHTML = 'Done!';
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            btn.innerHTML = 'Failed';
+            btn.disabled = false;
+          }
+        } catch (error) {
+          btn.innerHTML = 'Error';
+          btn.disabled = false;
+        }
+      }
+
+      // GLOBAL EVENT DELEGATION
+      // Instead of attaching a click listener to 100 different links, we attach ONE listener to the whole document
+      document.addEventListener('click', e => {
+        // e.target is whatever the mouse actually clicked on. .closest() checks if it, or its parents, are an anchor <a> inside the roadmap.
+        const link = e.target.closest('#roadmap-container a');
+        if (link) {
+          const linkText = link.innerText.trim();
+          const allTrophyNames = document.querySelectorAll('.achievement-name');
+
+          // Loops through the page looking for a trophy card that matches the text of the link that was clicked
+          for (let nameNode of allTrophyNames) {
+            if (nameNode.innerText.trim() === linkText) {
+              e.preventDefault(); // Stops the browser from following the href link
+
+              const card = nameNode.closest('.achievement-card');
+
+              //scroll smoothly to the trophy
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+              // Temporarily overrides the CSS box-shadow to flash the card blue
+              card.style.transition = 'box-shadow 0.3s ease';
+              card.style.boxShadow =
+                '0 0 30px #0ea5e9, inset 0 0 15px rgba(14, 165, 233, 0.3)';
+              setTimeout(() => {
+                card.style.boxShadow = '0 8px 32px 0 rgba(0, 0, 0, 0.3)';
+              }, 2000);
+
+              // Automatically pops open the guide dropdown block for convenience
+              const dropdown = card.querySelector('details');
+              if (dropdown && !dropdown.open) {
+                dropdown.open = true;
+                if (!dropdown.dataset.loaded) {
+                  fetchGuide(dropdown, linkText, gameId);
+                }
+              }
+              return; //Exits the loop early since we found the match
+            }
+          }
+        }
+      });
+
+      // Entry point: if a valid game ID was found in the URL, trigger the entire sequence to begin.
+      if (gameId) loadGameDetails();
+    </script>
+  </body>
 </html>
