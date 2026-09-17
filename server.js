@@ -639,6 +639,6 @@ app.get('/api/achievements/rarest', verifyToken, async (req, res) => {
 
 
 //start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is live and listening on http://localhost:${PORT}`);
 });
